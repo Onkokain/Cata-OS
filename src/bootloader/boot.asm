@@ -85,6 +85,8 @@ main:
   ; prints message
   mov si,msg_hello
   call prints
+
+  cli
   hlt
 
 boot_process_failed:
