@@ -33,7 +33,6 @@ $(BUILD_DIR)/kernel.bin: always
 #
 always:
 	mkdir -p $(BUILD_DIR)
-
 #
 #
 #
