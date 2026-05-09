@@ -10,7 +10,7 @@ bits 16 ; emits 16 bits code, directive not instruction
 jmp short start
 nop
 
-bdb_oem db 'MSWIN4.1'
+bdb_oem: db 'MSWIN4.1'
 bdb_bytes_per_sector: dw 512
 bdb_sectors_per_cluster: db 1
 bdb_reserved_sectors: dw 1
@@ -106,6 +106,10 @@ wait_key_and_reboot:
 ;
 ; Disk routines
 ; convert lba to chs since bootloader only supports chs
+
+; Convert the lba to chs system since that's what a floppy uses
+;
+;
 lba_to_chs:
   push ax
   push dx
