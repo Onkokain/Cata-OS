@@ -66,19 +66,20 @@ prints:
 ; main program starts
 ;
 main:
-  ; data segments
+  ;data segments
+  ; setting ds,es,ss to 0
   mov ax,0 ; using ax as a temp constant since cant write 0 directly to ds in 16 bit
-  mov ds, ax
-  mov es, ax
+  mov ds, ax ; moves ax to ds (data segment registor)
+  mov es, ax ; moves ax to es
   ; stack segments
-  mov ss,ax
+  mov ss,ax ; moves ax to ss
   mov sp, 0x7BFF ; stack grows downwards from init but with padding
   ;
   ;Read something from floppy
   ;
   mov [ebr_drive_number],dl
-  mov ax,1
-  mov cl,1
+  mov ax,1 ; ax is set to 1
+  mov cl,1 ; cl is said to 1
   mov bx, 0x7E00
   call disk_read
   ;
@@ -89,7 +90,7 @@ main:
   cli
   hlt
 ;
-;
+;;;;;;;
 ;
 boot_process_failed:
   mov si,msg_boot_process_failed
@@ -103,7 +104,7 @@ wait_key_and_reboot:
   int 16h
   jmp 0FFFFh:0
 ;
-;
+;;;;
 ;
 .halt:
   cli
