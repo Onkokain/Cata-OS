@@ -31,62 +31,159 @@ ebr_signature: db 29h
 ebr_volume_id: db 12h, 45h, 35h, 67h ; random serial number for volume id
 ebr_volume_label: db 'Barale OS  ' ; padded to 11 chars
 ebr_system_id: db 'FAT12   ' ; padded to 8 chars
-;
-; main start label, only use is to bypass everything and jump to main
-;
-start:
-  jmp main
-;
-; Prints a string to the screen
-;
-prints:
-  ; save registers to be modified later
-  push si ; source index register 16bits pointer register
-  push ax ; accumulator register 16bits general purpose register
-;
-; main print loop
-;
-.loop:
-  lodsb ; loads the byte (one character at a time) at [DS:SI] into AL then moves it to SI
-  or al,al ; verifies if current byte is null or not by doing a bitwise or inbetween al and al
-  jz .done ; conditional jump if al==0 aka no more characters left to read
-; if there are still characters left to read
-  mov ah, 0x0e ; moves 0x0e (teletype output) to ah
-  mov bh,0 ; moves 0 to bh (makes default page to display be 0)
-  int 0x10 ; initializes bios video interupt aka prints the character
-  jmp .loop ; loops if more strings left
-;
-; jump to done after print loop is done
-;
-.done:
-  pop ax ; removing the defined in prints in reverse order
-  pop si
-  ret
+
 ;
 ; main program starts
 ;
-main:
+start:
+  ;
   ;data segments
   ; setting ds,es,ss to 0
   mov ax,0 ; using ax as a temp constant since cant write 0 directly to ds in 16 bit
   mov ds, ax ; moves ax to ds (data segment registor)
   mov es, ax ; moves ax to es
+  ;
   ; stack segments
+  ;
   mov ss,ax ; moves ax to ss
   mov sp, 0x7BFF ; stack grows downwards from init but with padding
+
+  push es
+  push word .after
+  retf
+.after:
   ;
   ;Read something from floppy
   ;
   mov [ebr_drive_number],dl
-  mov ax,1 ; ax is set to 1
-  mov cl,1 ; cl is said to 1
-  mov bx, 0x7E00
-  call disk_read
-  ;
-  ; prints message
-  ;
+
+  ; prints loading message
   mov si,msg_loading
   call prints
+
+  ; read drive parameters
+  push es
+  mov ah, 08h
+  int 13h
+  jc boot_process_failed ;
+  pop es
+
+  and cl, 0x3F
+  xor ch,ch
+  mov [bdb_sectors_per_track],cx
+
+  inc dh
+  mov [bdb_heads],dh
+
+  ; read FAT root directory
+  mov ax, [bdb_sectors_per_fat]
+  mov bl, [bdb_fat_count]
+  xor bh,bh
+  mul bx
+  add ax, [bdb_reserved_sectors]
+  push ax
+
+  mov ax, [bdb_sectors_per_fat]
+  shl ax,5
+  xor dx,dx
+  div word [bdb_bytes_per_sector]
+
+  test dx,dx
+  jz .root_dir_after
+  inc ax
+
+.root_dir_after:
+; read root directory
+  mov cl,al
+  pop ax
+  mov dl, [ebr_drive_number]
+  mov bx, buffer
+  call disk_read
+
+  ;search for kernel.bin
+  xor bx,bx
+  mov di, buffer
+
+.search_kernel:
+  mov si, file_kernel_bin
+  mov cx, 11
+  push di
+  repe cmpsb
+  pop di
+  je .found_kernel
+
+  add di,32
+  inc bx
+  cmp bx, [bdb_dir_entries_count]
+  jl .search_kernel
+  ;error
+  jmp kernel_not_found_error
+
+
+.found_kernel:
+  ; di -> address to entry
+  mov ax, [di+26]
+  mov [kernel_cluster], ax
+
+  mov ax, [bdb_reserved_sectors]
+  mov bx,buffer
+  mov cl, [bdb_sectors_per_fat]
+  mov dl, [ebr_drive_number]
+  call disk_read
+
+  ; read kernel and process fat chain
+  mov bx, KERNEL_LOAD_SEGMENT
+  mov es,bx
+  mov bx, KERNEL_LOAD_OFFSET
+
+.load_kernel_loop:
+  ; read next cluster
+  mov ax, [kernel_cluster]
+  add ax,31
+  mov cl,1
+  mov dl, [ebr_drive_number]
+
+  add bx,[bdb_bytes_per_sector]
+
+  mov ax,[kernel_cluster]
+  mov cx,3
+  mul cx
+  mov cx,2
+  div cx
+
+  mov si, buffer
+  add si,ax
+  mov ax, [ds:si]
+
+  or dx,dx
+  jz .even
+
+.odd:
+  shr ax,4
+  jmp .next_cluster_after
+
+.even:
+  and ax,0x0FFF
+
+.next_cluster_after:
+  cmp ax,0x0FF8
+  jae .read_finish
+
+  mov [kernel_cluster], ax
+  jmp .load_kernel_loop
+
+.read_finish:
+  mov dl, [ebr_drive_number]
+  mov ax,KERNEL_LOAD_OFFSET
+  mov ds,ax
+  mov es,ax
+
+  jmp KERNEL_LOAD_SEGMENT: KERNEL_LOAD_OFFSET
+
+  jmp wait_key_and_reboot
+
+
+
   cli
   hlt
 ;
@@ -99,6 +196,12 @@ boot_process_failed:
 ;
 ;
 ;
+
+kernel_not_found_error:
+  mov si, msg_kernel_not_found
+  call prints
+  jmp wait_key_and_reboot
+
 wait_key_and_reboot:
   mov ah,0
   int 16h
@@ -109,11 +212,38 @@ wait_key_and_reboot:
 .halt:
   cli
   hlt
-;
+; ;
+; ; Prints a string to the screen
+; ;
+; prints:
+;   ; save registers to be modified later
+;   push si ; source index register 16bits pointer register
+;   push ax ; accumulator register 16bits general purpose register
+; ;
+; ; main print loop
+; ;
+; .loop:
+;   lodsb ; loads the byte (one character at a time) at [DS:SI] into AL then moves it to SI
+;   or al,al ; verifies if current byte is null or not by doing a bitwise or inbetween al and al
+;   jz .done ; conditional jump if al==0 aka no more characters left to read
+; ; if there are still characters left to read
+;   mov ah, 0x0e ; moves 0x0e (teletype output) to ah
+;   mov bh,0 ; moves 0 to bh (makes default page to display be 0)
+;   int 0x10 ; initializes bios video interupt aka prints the character
+;   jmp .loop ; loops if more strings left
+; ;
+; ; jump to done after print loop is done
+; ;
+; .done:
+;   pop ax ; removing the defined in prints in reverse order
+;   pop si
+;   ret
+; ;
 ; Disk routines
 ; convert lba to chs since bootloader only supports chs
 ; Convert the lba to chs system since that's what a floppy uses
 ;
+
 lba_to_chs:
   push ax
   push dx
@@ -191,7 +321,15 @@ disk_reset:
 ;
 msg_loading: db "Loading....", ENDL,0
 msg_boot_process_failed: db "Reading from disk failed.. Press any key to restart..", ENDL,0
+msg_kernel_not_found: db "Kernel.BIN file not found!", ENDL, 0
+file_kernel_bin: db 'KERNEL  BIN'
+kernel_cluster:  dw 0
+
+KERNEL_LOAD_SEGMENT equ 0x2000
+KERNEL_LOAD_OFFSET equ 0
 
 times 510-($-$$) db 0 ; makes the number of bytes =512 since using a floppy to boot
 
 dw 0AA55h ; for bootloader, dw= define words; 2 bytes
+
+buffer:
