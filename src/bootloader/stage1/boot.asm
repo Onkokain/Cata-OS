@@ -1,4 +1,4 @@
-; org is a 'directive' that defines where the code starts from, 0x7C00 is the default starting position on the disk
+;; org is a 'directive' that defines where the code starts from, 0x7C00 is the default starting position on the disk
 org 0x7C00
 bits 16 ; directive that tells the assembler to generate code assuming 16-bit cpu mode
 ;macro defined for a '\n' new line
