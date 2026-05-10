@@ -263,7 +263,7 @@ lba_to_chs:
   mov ch,al
   shl ah,6
   or cl,ah
-  pop dx
+  pop ax ; why did i pop dx here THIS WAS THE BUG
   mov dl,al
   pop ax
   ret
@@ -323,7 +323,7 @@ disk_read:
 disk_reset:
   pusha
   mov ah, 0 ; why was this 00h
-  stc ; why was i missing stc
+  stc ; why was i
   int 13h
   jc boot_process_failed
   popa
