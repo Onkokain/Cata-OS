@@ -319,9 +319,9 @@ disk_reset:
 ;
 ; main program loop ends
 ;
-msg_loading: db "Loading....", ENDL,0
-msg_boot_process_failed: db "Reading from disk failed.. Press any key to restart..", ENDL,0
-msg_kernel_not_found: db "Kernel.BIN file not found!", ENDL, 0
+msg_loading: db "Loading...", ENDL,0
+msg_boot_process_failed: db "Read dsk fail", ENDL,0
+msg_kernel_not_found: db "Kernel.bin not found!", ENDL, 0
 file_kernel_bin: db 'KERNEL  BIN'
 kernel_cluster:  dw 0
 
@@ -331,5 +331,5 @@ KERNEL_LOAD_OFFSET equ 0
 times 510-($-$$) db 0 ; makes the number of bytes =512 since using a floppy to boot
 
 dw 0AA55h ; for bootloader, dw= define words; 2 bytes
-
+times 25 db 0x90
 buffer:
