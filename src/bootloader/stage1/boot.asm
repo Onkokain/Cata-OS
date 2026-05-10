@@ -212,37 +212,37 @@ wait_key_and_reboot:
 .halt:
   cli
   hlt
-; ;
-; ; Prints a string to the screen
-; ;
-; prints:
-;   ; save registers to be modified later
-;   push si ; source index register 16bits pointer register
-;   push ax ; accumulator register 16bits general purpose register
-; ;
-; ; main print loop
-; ;
-; .loop:
-;   lodsb ; loads the byte (one character at a time) at [DS:SI] into AL then moves it to SI
-;   or al,al ; verifies if current byte is null or not by doing a bitwise or inbetween al and al
-;   jz .done ; conditional jump if al==0 aka no more characters left to read
-; ; if there are still characters left to read
-;   mov ah, 0x0e ; moves 0x0e (teletype output) to ah
-;   mov bh,0 ; moves 0 to bh (makes default page to display be 0)
-;   int 0x10 ; initializes bios video interupt aka prints the character
-;   jmp .loop ; loops if more strings left
-; ;
-; ; jump to done after print loop is done
-; ;
-; .done:
-;   pop ax ; removing the defined in prints in reverse order
-;   pop si
-;   ret
+;
+; Prints a string to the screen
+;
+prints:
+  ; save registers to be modified later
+  push si ; source index register 16bits pointer register
+  push ax ; accumulator register 16bits general purpose register
+;
+; main print loop
+;
+.loop:
+  lodsb ; loads the byte (one character at a time) at [DS:SI] into AL then moves it to SI
+  or al,al ; verifies if current byte is null or not by doing a bitwise or inbetween al and al
+  jz .done ; conditional jump if al==0 aka no more characters left to read
+; if there are still characters left to read
+  mov ah, 0x0e ; moves 0x0e (teletype output) to ah
+  mov bh,0 ; moves 0 to bh (makes default page to display be 0)
+  int 0x10 ; initializes bios video interupt aka prints the character
+  jmp .loop ; loops if more strings left
+;
+; jump to done after print loop is done
+;
+.done:
+  pop ax ; removing the defined in prints in reverse order
+  pop si
+  ret
 ; ;
 ; Disk routines
 ; convert lba to chs since bootloader only supports chs
 ; Convert the lba to chs system since that's what a floppy uses
-;
+
 
 lba_to_chs:
   push ax
