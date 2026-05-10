@@ -1,58 +1,53 @@
-ASM = nasm
-SRC_DIR = src
+ASM=nasm
+CC=gcc
+
+SRC_DIR=src
 TOOLS_DIR=tools
-BUILD_DIR = build
+BUILD_DIR=build
 
 .PHONY: all floppy_image kernel bootloader clean always tools_fat
 
 all: floppy_image tools_fat
 
 #
-# Floppy Image
+# Floppy image
 #
-floppy_image: ${BUILD_DIR}/main_floppy.img
+floppy_image: $(BUILD_DIR)/main_floppy.img
 
 $(BUILD_DIR)/main_floppy.img: bootloader kernel
-	dd if=/dev/zero of=$(BUILD_DIR)/main_floppy.img bs=512 count=2880
+	# Create blank floppy image
+	dd if=/dev/zero of=$@ bs=512 count=2880 status=none
 
-	mkfs.fat -F 12 -n "NBOS" $(BUILD_DIR)/main_floppy.img
+	# Format FAT12 + install bootloader in one reliable step
+	mformat -i $@ -f 1440 -v "NBOS" -B $(BUILD_DIR)/bootloader.bin ::
 
-	dd if=$(BUILD_DIR)/stage1.bin of=$(BUILD_DIR)/main_floppy.img conv=notrunc
+	# Copy files to the FAT filesystem
+	mcopy -i $@ $(BUILD_DIR)/kernel.bin "::kernel.bin"
+	mcopy -i $@ test.txt "::test.txt"
 
-	mcopy -i $(BUILD_DIR)/main_floppy.img $(BUILD_DIR)/stage2.bin "::stage2.bin"
-	mcopy -i $(BUILD_DIR)/main_floppy.img $(BUILD_DIR)/stage2.bin "::kernel.bin"
-
-	mcopy -i $(BUILD_DIR)/main_floppy.img test.txt "::test.txt"
 #
 # Bootloader
 #
-bootloader : stage1 stage2
+bootloader: $(BUILD_DIR)/bootloader.bin
 
-stage1: $(BUILD_DIR)/stage1.bin
+$(BUILD_DIR)/bootloader.bin: always
+	$(ASM) $(SRC_DIR)/bootloader/boot.asm -f bin -o $@
 
-$(BUILD_DIR)/stage1.bin: always
-	$(MAKE) -C  $(SRC_DIR)/bootloader/stage1 BUILD_DIR=$(abspath $(BUILD_DIR))
-
-stage2: $(BUILD_DIR)/stage2.bin
-
-$(BUILD_DIR)/stage2.bin: always
-	$(MAKE) -C  $(SRC_DIR)/bootloader/stage2 BUILD_DIR=$(abspath $(BUILD_DIR))
 #
 # Kernel
 #
 kernel: $(BUILD_DIR)/kernel.bin
 
 $(BUILD_DIR)/kernel.bin: always
-	$(MAKE) -C  $(SRC_DIR)/kernel BUILD_DIR=$(abspath $(BUILD_DIR))
-
+	$(ASM) $(SRC_DIR)/kernel/main.asm -f bin -o $@
 
 #
 # Tools
 #
 tools_fat: $(BUILD_DIR)/tools/fat
-$(BUILD_DIR)/tools/fat: always $(TOOLS_DIR)/fat/fat.c
+$(BUILD_DIR)/tools/fat: always
 	mkdir -p $(BUILD_DIR)/tools
-	$(CC) -g -o $(BUILD_DIR)/tools/fat $(TOOLS_DIR)/fat/fat.c
+	$(CC) -g -o $@ $(TOOLS_DIR)/fat/fat.c
 
 #
 # Always
@@ -61,11 +56,7 @@ always:
 	mkdir -p $(BUILD_DIR)
 
 #
-#
+# Clean
 #
 clean:
-	$(MAKE) -C  $(SRC_DIR)/bootloader/stage1 BUILD_DIR=$(abspath $(BUILD_DIR)) clean
-	$(MAKE) -C  $(SRC_DIR)/bootloader/stage2 BUILD_DIR=$(abspath $(BUILD_DIR)) clean
-	$(MAKE) -C  $(SRC_DIR)/kernel BUILD_DIR=$(abspath $(BUILD_DIR)) clean
-
 	rm -rf $(BUILD_DIR)/*

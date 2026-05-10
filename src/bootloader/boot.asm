@@ -3,7 +3,9 @@ org 0x7C00
 bits 16 ; directive that tells the assembler to generate code assuming 16-bit cpu mode
 ;macro defined for a '\n' new line
 ; syntax: %define <label>, [value1,value2,value3]
+
 %define ENDL 0x0D,0x0A ; replaces ENDL anywhere on the code with 0x0D,0x0A
+
 jmp short start ; short defines that the jmp is short and uses less bytes of space than just 'jump start'
 nop ; does nothing used to fill space
 ;
@@ -29,7 +31,7 @@ ebr_drive_number: db 0
 db 0 ; reserved empty byte
 ebr_signature: db 29h
 ebr_volume_id: db 12h, 45h, 35h, 67h ; random serial number for volume id
-ebr_volume_label: db 'Barale OS  ' ; padded to 11 chars
+ebr_volume_label: db 'zerobits OS' ; padded to 11 chars
 ebr_system_id: db 'FAT12   ' ; padded to 8 chars
 
 ;
@@ -46,7 +48,7 @@ start:
   ; stack segments
   ;
   mov ss,ax ; moves ax to ss
-  mov sp, 0x7BFF ; stack grows downwards from init but with padding
+  mov sp, 0x7C00 ; stack grows downwards from init but with padding
 
   push es
   push word .after
@@ -65,7 +67,7 @@ start:
   push es
   mov ah, 08h
   int 13h
-  jc boot_process_failed ;
+  jc boot_process_failed
   pop es
 
   and cl, 0x3F
@@ -83,7 +85,7 @@ start:
   add ax, [bdb_reserved_sectors]
   push ax
 
-  mov ax, [bdb_sectors_per_fat]
+  mov ax, [bdb_dir_entries_count] ; called the wrong label here
   shl ax,5
   xor dx,dx
   div word [bdb_bytes_per_sector]
@@ -142,6 +144,7 @@ start:
   add ax,31
   mov cl,1
   mov dl, [ebr_drive_number]
+  call disk_read ;; I HAD FORGOTTEN TO CALL THE DISK READ WHILE LOADING THE KERNEL BRUHHHH
 
   add bx,[bdb_bytes_per_sector]
 
@@ -174,7 +177,7 @@ start:
 
 .read_finish:
   mov dl, [ebr_drive_number]
-  mov ax,KERNEL_LOAD_OFFSET
+  mov ax,KERNEL_LOAD_SEGMENT ; moved offset instead of segment to ax by mistake..
   mov ds,ax
   mov es,ax
 
@@ -219,6 +222,7 @@ prints:
   ; save registers to be modified later
   push si ; source index register 16bits pointer register
   push ax ; accumulator register 16bits general purpose register
+  push bx
 ;
 ; main print loop
 ;
@@ -235,8 +239,10 @@ prints:
 ; jump to done after print loop is done
 ;
 .done:
+  pop bx
   pop ax ; removing the defined in prints in reverse order
   pop si
+
   ret
 ; ;
 ; Disk routines
@@ -270,9 +276,11 @@ disk_read:
   push cx
   push dx
   push di
+
   push cx
   call lba_to_chs
-  pop cx
+  pop ax; istg if this is the error
+
   mov ah,02h
   mov di, 3
 ;
@@ -283,10 +291,12 @@ disk_read:
   stc
   int 13h
   jnc .done
+
   ; reading disk fails
   popa
   call disk_reset
-   dec di
+
+  dec di; istg if this was indented wrong
   test di,di
   jnz .retry
 ;
@@ -300,6 +310,7 @@ disk_read:
 ;
 .done:
   popa
+
   pop di
   pop dx
   pop cx
@@ -311,7 +322,8 @@ disk_read:
 ;
 disk_reset:
   pusha
-  mov ah, 00h
+  mov ah, 0 ; why was this 00h
+  stc ; why was i missing stc
   int 13h
   jc boot_process_failed
   popa
@@ -320,7 +332,7 @@ disk_reset:
 ; main program loop ends
 ;
 msg_loading: db "Loading...", ENDL,0
-msg_boot_process_failed: db "Read dsk fail", ENDL,0
+msg_boot_process_failed: db "Read disk fail", ENDL,0
 msg_kernel_not_found: db "Kernel.bin not found!", ENDL, 0
 file_kernel_bin: db 'KERNEL  BIN'
 kernel_cluster:  dw 0
