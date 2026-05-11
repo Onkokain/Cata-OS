@@ -42,4 +42,4 @@ prints:
     pop si
     ret
 
-msg_hello: db 'Hello world from kernel!', ENDL, 0
+msg_hello: db 'Hello world!', ENDL, 0

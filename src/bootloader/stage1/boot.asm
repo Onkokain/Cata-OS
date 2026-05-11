@@ -33,7 +33,6 @@ ebr_signature: db 29h
 ebr_volume_id: db 12h, 45h, 35h, 67h ; random serial number for volume id
 ebr_volume_label: db 'zerobits OS' ; padded to 11 chars
 ebr_system_id: db 'FAT12   ' ; padded to 8 chars
-
 ;
 ; main program starts
 ;
@@ -343,5 +342,4 @@ KERNEL_LOAD_OFFSET equ 0
 times 510-($-$$) db 0 ; makes the number of bytes =512 since using a floppy to boot
 
 dw 0AA55h ; for bootloader, dw= define words; 2 bytes
-times 25 db 0x90
 buffer:
