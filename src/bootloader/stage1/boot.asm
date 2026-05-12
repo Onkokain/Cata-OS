@@ -30,7 +30,7 @@ bdb_large_sector_count: dd 0
 ebr_drive_number: db 0
 db 0 ; reserved empty byte
 ebr_signature: db 29h
-ebr_volume_id: db 12h, 45h, 35h, 67h ; random serial number for volume id
+ebr_volume_id: db 12h, 45h, 35h, 67h ; random serial number for volume id, usually randomized, hardcoaded ehre
 ebr_volume_label: db 'zerobits OS' ; padded to 11 chars
 ebr_system_id: db 'FAT12   ' ; padded to 8 chars
 ;
@@ -47,7 +47,7 @@ start:
   ; stack segments
   ;
   mov ss,ax ; moves ax to ss
-  mov sp, 0x7C00 ; stack grows downwards from init but with padding
+  mov sp, 0x7C00 ; stack grows downwards from init from the start of the bootloader
 
   push es
   push word .after
@@ -57,8 +57,8 @@ start:
   ;Read something from floppy
   ;
   mov [ebr_drive_number],dl
-
   ; prints loading message
+
   mov si,msg_loading
   call prints
 
