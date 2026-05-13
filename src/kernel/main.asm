@@ -2,7 +2,7 @@ org 0x0000
 bits 16
 
 
-%define ENDL 0x0D, 0x0A ; \n new character line
+%define ENDL 0x0D, 0x0A ; ; n new character line
 
 
 start:
