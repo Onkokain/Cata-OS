@@ -1,6 +1,6 @@
 ASM=nasm
 CC=gcc
-CC16?=/home/baralekogyan/Downloads/ow/binl64/wcc
+CC16=/home/baralekogyan/Downloads/ow/binl64/wcc
 LD16=/home/baralekogyan/Downloads/ow/binl64/wlink
 
 SRC_DIR=src
