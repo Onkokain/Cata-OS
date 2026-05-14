@@ -23,14 +23,14 @@ void puts(const char* str) {
 #define length_l 3
 #define length_ll 4
 
-int* printf_number(int* argp,int length,bool sign, int basex)
+int* printf_number(int* argp,int length,bool sign, int basex);
 
 void _cdecl printf(const char* fmt, ...) {
-  int* argp=(int)&fmt;
+  int* argp=(int*)(&fmt);
   int state=state_normal;
   int length=length_default;
   int basex=10;
-  bool signed= false; // havent typedef bool expecting default case use
+  bool sign= false; // havent typedef bool expecting default case use
 
   argp++;
   while(*fmt){
@@ -38,7 +38,7 @@ void _cdecl printf(const char* fmt, ...) {
     {
       case state_normal:
         switch(*fmt) {
-          case "%":
+          case '%':
           state=state_length;
           break;
 
@@ -50,10 +50,12 @@ void _cdecl printf(const char* fmt, ...) {
 
       case state_length:
         switch(*fmt) {
-          case "l":
+          case 'l':
           length=length_l;
           state=state_length_l;
-          case "h":
+          break;
+
+          case 'h':
           length=length_s;
           state=state_length_s;
           default:
@@ -79,38 +81,38 @@ void _cdecl printf(const char* fmt, ...) {
       case state_specifier:
       state_specifier_: // jump label
         switch (*fmt) {
-          case "c":
+          case 'c':
           putc((char)*argp);
           argp++;
           break;
 
-          case "s":
-          puts((char)*argp);
+          case 's':
+          puts((char*)*argp);
           argp++;
           break;
 
-          case "%":
-          putc("%");
+          case '%':
+          putc('%');
           break;
 
-          case "d":
-          case "i":
+          case 'd':
+          case 'i':
           basex=10;
           sign=true;
           argp=printf_number(argp,length,sign,basex);
 
-          case "u":
+          case 'u':
           basex=10;
           sign=false;
           argp=printf_number(argp,length,sign,basex);
-          case "X":
-          case "x":
-          case "p":
+          case 'X':
+          case 'x':
+          case 'p':
           basex=16;
           sign=false;
           argp=printf_number(argp,length,sign,basex);
 
-          case "o":
+          case 'o':
           basex=8;
           sign=true;
           argp=printf_number(argp,length,sign,basex);
@@ -120,7 +122,7 @@ void _cdecl printf(const char* fmt, ...) {
         }
         state=state_normal;
         length=length_default;
-        basex=10
+        basex=10;
         sign=false;
         break;
     }
@@ -143,8 +145,61 @@ int* printf_number(int* argp,int length,bool sign, int basex){
         int n=*argp;
         if (n<0) {
           n=-n;
+          number_sign=-1;
         }
+        number=(unsigned long long)n;
       }
+      else {
+        number=*(unsigned int*)argp;
+      }
+      argp++;
+      break;
+
+    case length_l:
+      if (sign) {
+        long int n=*(long int*)argp;
+        if (n<0) {
+          n=-n;
+          number_sign=-1;
+        }
+        number=n;
+      }
+      else {
+        number=*(unsigned long int*)argp;
+      }
+      argp+=2;
+      break;
+
+    case length_ll:
+      if (sign) {
+        long long int n=*(long long int*)argp;
+        if (n<0) {
+          n=-n;
+          number_sign=-1;
+        }
+        number=n;
+      }
+      else {
+        number=*(unsigned long long*)argp;
+      }
+      argp+=4;
+      break;
   }
 
+  do {
+    uint32_t rem=number % basex;
+    buffer[pos++]=g_HexChars[rem];
+    number/=basex;
+  } while (number>0);
+
+  if (sign && number_sign <0)
+  {
+    buffer[pos++]='-';
+  }
+
+  while (--pos>=0) {
+    putc(buffer[pos]);
+
+  }
+  return argp;
 }
