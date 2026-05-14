@@ -2,6 +2,9 @@
 #include "x86.h"
 
 void putc(char c) {
+  if(c=='\n') {
+    x86_Video_WriteCharTeletype('\r',0);
+  }
   x86_Video_WriteCharTeletype(c,0);
 }
 
@@ -58,6 +61,8 @@ void _cdecl printf(const char* fmt, ...) {
           case 'h':
           length=length_s;
           state=state_length_s;
+          break;
+
           default:
           goto state_specifier_;
         }
@@ -100,23 +105,26 @@ void _cdecl printf(const char* fmt, ...) {
           basex=10;
           sign=true;
           argp=printf_number(argp,length,sign,basex);
+          break;
 
           case 'u':
           basex=10;
           sign=false;
           argp=printf_number(argp,length,sign,basex);
+          break;
+
           case 'X':
           case 'x':
           case 'p':
           basex=16;
           sign=false;
           argp=printf_number(argp,length,sign,basex);
-
+          break;
           case 'o':
           basex=8;
-          sign=true;
+          sign=false;
           argp=printf_number(argp,length,sign,basex);
-
+          break;
           default:
           break;
         }
@@ -187,9 +195,9 @@ int* printf_number(int* argp,int length,bool sign, int basex){
   }
 
   do {
-    uint32_t rem=number % basex;
+    uint32_t rem;
+    x86_div64_32(number,basex,&number,&rem);
     buffer[pos++]=g_HexChars[rem];
-    number/=basex;
   } while (number>0);
 
   if (sign && number_sign <0)
