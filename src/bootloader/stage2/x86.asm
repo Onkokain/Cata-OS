@@ -1,6 +1,39 @@
 bits 16 ; sets to 16 bit real mode
 
 section _TEXT class=CODE
+
+global __U4D
+__U4D:
+  shl edx,16
+  mov dx,ax
+  mov eax,edx
+  xor edx,edx
+
+  shl ecx,16
+  mov cx,bx
+
+  div ecx
+  mov ebx,edx
+  mov ecx,edx
+  shr ecx,16
+
+  mov edx,eax
+  shr edx,16
+  ret
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ;
 ;
 ;

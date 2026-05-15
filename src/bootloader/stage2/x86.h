@@ -17,7 +17,7 @@ bool _cdecl x86_Disk_Read(
   uint16_t sector,
   uint16_t head,
   uint8_t count,
-  uint8_t far * dataOut
+  void far * dataOut
 );
 
 bool _cdecl x86_Disk_GetDriveParameters(
