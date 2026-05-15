@@ -100,8 +100,11 @@ bool FAT_Init(DISK* disk)(
     printf("FAT: Read root directory failed\n")
     return false;
   }
-
 );
+
+FAT_File* FAT_Open(DISK* disk, const char* path) {
+
+};
 
 
 DirectoryEntry* findFile(const char* name) {
