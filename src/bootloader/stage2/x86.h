@@ -21,7 +21,8 @@ bool _cdecl x86_Disk_Read(
 );
 
 bool _cdecl x86_Disk_GetDriveParameters(
-  uint8_t driveTypeOut,
+  uint8_t drive,
+  uint8_t* driveTypeOut,
   uint16_t* cylindersOut,
   uint16_t* sectorsOut,
   uint16_t* headsOut
