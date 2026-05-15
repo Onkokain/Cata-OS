@@ -8,3 +8,20 @@ void _cdecl x86_div64_32(
   uint32_t divisor,
   uint64_t* quotientOut,
   uint32_t* remainderOut);
+
+void _cdecl x86_Disk_Reset(uint8_t drive);
+
+void _cdecl x86_Disk_Read(
+  uint8_t drive,
+  uint16_t cylinder,
+  uint16_t sector,
+  uint8_t count,
+  uint8_t far * dataOut
+);
+
+void _cdecl x86_Disk_GetDriveParameters(
+  uint8_t driveTypeOut,
+  uint16_t* cylindersOut,
+  uint16_t* sectorsOut,
+  uint16_t* headsOut,
+);
