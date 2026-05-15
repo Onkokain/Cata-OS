@@ -2,7 +2,7 @@ BUILD_DIR ?= build/
 ASM ?= nasm
 ASMFLAGS?=-f obj
 CC16 ?= /home/baralekogyan/Downloads/ow/binl64/wcc
-CFLAGS16?=-4 -d3 -s -wx -ms -zl -zq
+CFLAGS16?=-4 -d3 -s -wx -ms -zl -zq -za99
 LD16 ?= /home/baralekogyan/Downloads/ow/binl64/wlink
 
 SOURCES_C = $(wildcard *.c)
