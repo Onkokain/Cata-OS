@@ -32,7 +32,7 @@ void _cdecl cstart_(uint16_t bootDrive){
     // read test.txt
     char buffer[100];
     uint32_t read;
-    fd = FAT_Open(&disk, "testa.txt"); // WILL FAIL IF FOLDER DOESNT EXIST
+    fd = FAT_Open(&disk, "test.txt"); // WILL FAIL IF FOLDER DOESNT EXIST #fix
     while ((read = FAT_Read(&disk, fd, sizeof(buffer), buffer)))
     {
         for (uint32_t i = 0; i < read; i++)
