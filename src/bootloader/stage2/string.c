@@ -12,6 +12,31 @@ const char* strchr(const char* str,char chr) {
   return NULL;
 }
 
-char* strcpy( char* dst,const char src) {
-  
+char* strcpy( char* dst,const char* src) {
+  char* origDst=dst;
+
+  if (dst==NULL)
+      return NULL;
+  if (src==NULL) {
+      *dst='\0';
+      return dst;
+  }
+  while (*src) {
+
+    *dst=*src;
+    ++src;
+    ++dst;
+  }
+  *dst='\0';
+  return origDst;
+}
+
+unsigned strlen(char* str) {
+  unsigned len=0;
+  while(*str) {
+    ++len;
+
+    ++str;
+  }
+  return len;
 }
