@@ -66,7 +66,7 @@ static uint8_t far* g_Fat=NULL;
 static uint32_t g_DataSectionLba;
 
 bool FAT_ReadBootSector(DISK* disk) {
-  return DISK_ReadSectors(disk,0,1,&g_Data->BS.BootSectorBytes);
+  return DISK_ReadSectors(disk,0,1,g_Data->BS.BootSectorBytes);
 }
 
 
@@ -289,7 +289,7 @@ FAT_File far* FAT_Open(DISK* disk, const char* path) {
         FAT_DirectoryEntry entry;
         if (FAT_FindFile(disk,current,name,&entry)) {
           FAT_Close(current);
-          if(!isLast && entry.Attributes &          FAT_ATTRIBUTE_DIRECTORY==0) {
+          if(!isLast && entry.Attributes & FAT_ATTRIBUTE_DIRECTORY==0) {
             printf("FAT: %s not a directory.\n",name);
             return NULL;
           }

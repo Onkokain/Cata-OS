@@ -1,7 +1,7 @@
 Open Watcom Linker Version 2.0 beta May 12 2026 07:15:08 (64-bit)
 Copyright (c) 2002-2026 The Open Watcom Contributors. All Rights Reserved.
 Portions Copyright (c) 1985-2002 Sybase, Inc. All Rights Reserved.
-Created on:       26/05/16 14:43:39
+Created on:       26/05/16 15:29:17
 Executable Image: /home/baralekogyan/Documents/Github/my-os/build/stage2.bin
 creating a RAW Binary Image executable
 
@@ -13,7 +13,7 @@ creating a RAW Binary Image executable
 Group                           Address              Size
 =====                           =======              ====
 
-DGROUP                          00001934             00000152
+DGROUP                          00001a08             00000162
 
 
 
@@ -25,11 +25,11 @@ Segment                Class          Group          Address         Size
 =======                =====          =====          =======         ====
 
 _ENTRY                 CODE           AUTO           00000000        00000013
-_TEXT                  CODE           AUTO           00000013        00001920
-CONST                  DATA           DGROUP         00001934        00000134
-CONST2                 DATA           DGROUP         00001a68        00000011
-_DATA                  DATA           DGROUP         00001a7a        00000004
-_BSS                   BSS            DGROUP         00001a7e        00000008
+_TEXT                  CODE           AUTO           00000013        000019f4
+CONST                  DATA           DGROUP         00001a08        0000013f
+CONST2                 DATA           DGROUP         00001b48        00000011
+_DATA                  DATA           DGROUP         00001b5a        00000008
+_BSS                   BSS            DGROUP         00001b62        00000008
 
 
                         +----------------+
@@ -68,29 +68,30 @@ Module: /home/baralekogyan/Documents/Github/my-os/build/stage2/c/fat.obj(/home/b
 000006aa+      FAT_ClusterToLba_
 00000700+      FAT_OpenEntry_
 000008ca+      FAT_NextCluster_
-00000953+      FAT_Read_
+00000953       FAT_Read_
 00000cb7       FAT_ReadEntry_
 00000d10       FAT_Close_
 00000d87+      FAT_FindFile_
 00000ec1       FAT_Open_
 Module: /home/baralekogyan/Documents/Github/my-os/build/stage2/c/main.obj(/home/baralekogyan/Documents/Github/my-os/build/stage2/c/main.obj)
 0000103b       _cstart_
+00001b5e+      _g_data
 Module: /home/baralekogyan/Documents/Github/my-os/build/stage2/c/memory.obj(/home/baralekogyan/Documents/Github/my-os/build/stage2/c/memory.obj)
-000010fc       memcpy_
-00001170       memset_
-000011cf       memcmp_
+000011d0       memcpy_
+00001244       memset_
+000012a3       memcmp_
 Module: /home/baralekogyan/Documents/Github/my-os/build/stage2/c/stdio.obj(/home/baralekogyan/Documents/Github/my-os/build/stage2/c/stdio.obj)
-00001248       putc_
-0000128a+      puts_
-000012c1       _printf
-0000151c+      printf_number_
-00001a68+      _g_HexChars
+0000131c       putc_
+0000135e+      puts_
+00001395       _printf
+000015f0+      printf_number_
+00001b48+      _g_HexChars
 Module: /home/baralekogyan/Documents/Github/my-os/build/stage2/c/string.obj(/home/baralekogyan/Documents/Github/my-os/build/stage2/c/string.obj)
-00001790       strchr_
-000017eb+      strcpy_
-0000185f       strlen_
+00001864       strchr_
+000018bf+      strcpy_
+00001933       strlen_
 Module: /home/baralekogyan/Documents/Github/my-os/build/stage2/c/utility.obj(/home/baralekogyan/Documents/Github/my-os/build/stage2/c/utility.obj)
-0000189a+      align_
+0000196e+      align_
 
 
                         +---------------------+
@@ -109,45 +110,45 @@ Module          Segment               Class           Address         Size
                 _TEXT                 CODE           00000013         0000010e
 /home/baralekogyan/Documents/Github/my-os/build/stage2/c/ctype.obj
                 _TEXT                 CODE           00000121         0000010c
-                CONST                 DATA           00001934         00000000
-                CONST2                DATA           00001a68         00000000
-                _DATA                 DATA           00001a7a         00000000
+                CONST                 DATA           00001a08         00000000
+                CONST2                DATA           00001b48         00000000
+                _DATA                 DATA           00001b5a         00000000
 /home/baralekogyan/Documents/Github/my-os/build/stage2/c/disk.obj
                 _TEXT                 CODE           0000022d         000001c6
-                CONST                 DATA           00001934         00000000
-                CONST2                DATA           00001a68         00000000
-                _DATA                 DATA           00001a7a         00000000
+                CONST                 DATA           00001a08         00000000
+                CONST2                DATA           00001b48         00000000
+                _DATA                 DATA           00001b5a         00000000
 /home/baralekogyan/Documents/Github/my-os/build/stage2/c/fat.obj
                 _TEXT                 CODE           000003f3         00000c48
-                CONST                 DATA           00001934         00000105
-                CONST2                DATA           00001a68         00000000
-                _DATA                 DATA           00001a7a         00000004
-                _BSS                  BSS            00001a7e         00000008
+                CONST                 DATA           00001a08         00000105
+                CONST2                DATA           00001b48         00000000
+                _DATA                 DATA           00001b5a         00000004
+                _BSS                  BSS            00001b62         00000008
 /home/baralekogyan/Documents/Github/my-os/build/stage2/c/main.obj
-                _TEXT                 CODE           0000103b         000000c1
-                CONST                 DATA           00001a3a         0000002e
-                CONST2                DATA           00001a68         00000000
-                _DATA                 DATA           00001a7e         00000000
+                _TEXT                 CODE           0000103b         00000195
+                CONST                 DATA           00001b0e         00000039
+                CONST2                DATA           00001b48         00000000
+                _DATA                 DATA           00001b5e         00000004
 /home/baralekogyan/Documents/Github/my-os/build/stage2/c/memory.obj
-                _TEXT                 CODE           000010fc         0000014c
-                CONST                 DATA           00001a68         00000000
-                CONST2                DATA           00001a68         00000000
-                _DATA                 DATA           00001a7e         00000000
+                _TEXT                 CODE           000011d0         0000014c
+                CONST                 DATA           00001b48         00000000
+                CONST2                DATA           00001b48         00000000
+                _DATA                 DATA           00001b62         00000000
 /home/baralekogyan/Documents/Github/my-os/build/stage2/c/stdio.obj
-                _TEXT                 CODE           00001248         00000548
-                CONST                 DATA           00001a68         00000000
-                CONST2                DATA           00001a68         00000011
-                _DATA                 DATA           00001a7e         00000000
+                _TEXT                 CODE           0000131c         00000548
+                CONST                 DATA           00001b48         00000000
+                CONST2                DATA           00001b48         00000011
+                _DATA                 DATA           00001b62         00000000
 /home/baralekogyan/Documents/Github/my-os/build/stage2/c/string.obj
-                _TEXT                 CODE           00001790         0000010a
-                CONST                 DATA           00001a68         00000000
-                CONST2                DATA           00001a7a         00000000
-                _DATA                 DATA           00001a7e         00000000
+                _TEXT                 CODE           00001864         0000010a
+                CONST                 DATA           00001b48         00000000
+                CONST2                DATA           00001b5a         00000000
+                _DATA                 DATA           00001b62         00000000
 /home/baralekogyan/Documents/Github/my-os/build/stage2/c/utility.obj
-                _TEXT                 CODE           0000189a         00000099
-                CONST                 DATA           00001a68         00000000
-                CONST2                DATA           00001a7a         00000000
-                _DATA                 DATA           00001a7e         00000000
+                _TEXT                 CODE           0000196e         00000099
+                CONST                 DATA           00001b48         00000000
+                CONST2                DATA           00001b5a         00000000
+                _DATA                 DATA           00001b62         00000000
 Warning! W1014: stack segment not found
 
 
@@ -156,6 +157,6 @@ Warning! W1014: stack segment not found
                         +-----------------------+
 
 Stack size:  0200 (512.)
-Memory size:  1a86 (6790.)
+Memory size:  1b6a (7018.)
 Entry point address: 00000000
-Link time: 00:00.71
+Link time: 00:00.48
