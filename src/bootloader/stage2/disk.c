@@ -8,8 +8,8 @@ bool DISK_init(DISK* disk, uint8_t driveNumber){
   if (!x86_Disk_GetDriveParameters(disk->id, &driveType, &cylinders, &sectors, &heads))
     return false;
   disk-> id = driveNumber;
-  disk->cylinders= cylinders;
-  disk-> heads= heads;
+  disk->cylinders= cylinders+1;
+  disk-> heads= heads+1;
   disk-> sectors= sectors;
 
   return true;
