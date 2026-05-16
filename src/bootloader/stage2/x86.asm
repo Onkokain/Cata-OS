@@ -21,6 +21,21 @@ __U4D:
   shr edx,16
   ret
 
+global __U4M
+__U4M:
+  shl edx,16
+  mov dx,ax
+  mov eax,edx
+
+  shl ecx,16
+  mov cx,bx
+
+  mul ecx
+  mov edx,eax
+  shr edx,16
+
+  ret
+
 
 
 

@@ -1,11 +1,14 @@
 #include "memory.h"
+#include "stdint.h"
 
-int memcpy(void* dst, const void* src, uint32_t n) {
-  uint18_t far* u8Dst= (uint8_t far*)dst;
-  const uint18_t far* u8Src= (const uint8_t far*)src;
+void far* memcpy(void far* dst, const void far* src, uint16_t n){
+  uint8_t far* u8Dst= (uint8_t far*)dst;
+  const uint8_t far* u8Src= (const uint8_t far*)src;
 
-  for (uint16_t i=0, i<n, i++)
+  for (uint16_t i=0; i<n; i++)
       u8Dst[i]=u8Src[i];
+
+  return dst;
 
 }
 

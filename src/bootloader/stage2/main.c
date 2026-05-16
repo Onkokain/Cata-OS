@@ -5,7 +5,7 @@
 
 void _cdecl cstart_(uint16_t bootDrive){
   DISK disk;
-  if (!DISK_Initiaize(&disk, bootDrive)) {
+  if (!DISK_init(&disk, bootDrive)) {
     printf("disk init failed..\n");
     goto end;
   }
@@ -13,6 +13,18 @@ void _cdecl cstart_(uint16_t bootDrive){
     printf("FAT init failed..\n");
     goto end;
   }
+  //browse
+
+  FAT_File far* fd=FAT_Open(&disk,"/");
+  FAT_DirectoryEntry entry;
+  while (FAT_ReadEntry(&disk,fd,&entry)) {
+    printf(" ");
+    for(int i=0;i<11;i++) {
+      putc(entry.Name[i]);
+    }
+    printf("\r\n");
+  }
+  FAT_Close(fd);
 
 
   end:
