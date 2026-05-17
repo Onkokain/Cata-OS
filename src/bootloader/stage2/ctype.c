@@ -2,18 +2,26 @@
 
 
 char tolower(char chr){
-  return isupper(chr) ? (chr-'A'+'a'): chr;
-
+  if(isupper(chr))
+    return chr-'A'+'a';
+  return chr;
 }
 
 char toupper(char chr){
-  return islower(chr) ? (chr-'a'+'A'): chr;
+  if(islower(chr))
+    return chr-'a'+'A';
+  return chr;
 }
 
 bool isupper(char chr){
-  return chr>='A' && chr<='Z';
-
+  if(chr >= 'A' && chr <= 'Z')
+    return true;
+  else
+    return false;
 }
 bool islower(char chr){
-  return chr>='a' && chr<='z';
+  if(chr >='a' && chr <= 'z')
+    return true;
+  else
+    return false;
 }

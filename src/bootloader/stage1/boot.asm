@@ -1,16 +1,19 @@
 ;; org is a 'directive' that defines where the code starts from, 0x7C00 is the default starting position on the disk
 org 0x7C00
 bits 16 ; directive that tells the assembler to generate code assuming 16-bit cpu mode
+
 ;macro defined for a '\n' new line
 ; syntax: %define <label>, [value1,value2,value3]
-
-%define ENDL 0x0D,0x0A ; replaces ENDL anywhere on the code with 0x0D,0x0A
+%define ENDL 0x0D,0x0A
+; replaces ENDL anywhere on the code with 0x0D,0x0A
 
 jmp short start ; short defines that the jmp is short and uses less bytes of space than just 'jump start'
+
 nop ; does nothing used to fill space
+
 ;
-; Fat12 header
-; bdb= BIOS Data Block
+; Fat12 header; bdb= BIOS Data Block
+;
 bdb_oem: db 'MSWIN4.1'
 bdb_bytes_per_sector: dw 512
 bdb_sectors_per_cluster: db 1
@@ -33,12 +36,14 @@ ebr_signature: db 29h
 ebr_volume_id: db 12h, 45h, 35h, 67h ; random serial number for volume id, usually randomized, hardcoaded ehre
 ebr_volume_label: db 'zerobits OS' ; padded to 11 chars
 ebr_system_id: db 'FAT12   ' ; padded to 8 chars
+
 ;
 ; main program starts
 ;
 start:
   ;
   ;data segments
+  ;
   ; setting ds,es,ss to 0
   mov ax,0 ; using ax as a temp constant since cant write 0 directly to ds in 16 bit
   mov ds, ax ; moves ax to ds (data segment registor)
@@ -52,13 +57,14 @@ start:
   push es
   push word .after
   retf
+
 .after:
   ;
   ;Read something from floppy
   ;
   mov [ebr_drive_number],dl
-  ; prints loading message
 
+  ; prints loading message
   mov si,msg_loading
   call prints
 
@@ -75,8 +81,9 @@ start:
 
   inc dh
   mov [bdb_heads],dh
-
+  ;
   ; read FAT root directory
+  ;
   mov ax, [bdb_sectors_per_fat]
   mov bl, [bdb_fat_count]
   xor bh,bh
@@ -84,7 +91,7 @@ start:
   add ax, [bdb_reserved_sectors]
   push ax
 
-  mov ax, [bdb_dir_entries_count] ; called the wrong label here
+  mov ax, [bdb_dir_entries_count]
   shl ax,5
   xor dx,dx
   div word [bdb_bytes_per_sector]
@@ -117,7 +124,9 @@ start:
   inc bx
   cmp bx, [bdb_dir_entries_count]
   jl .search_kernel
+  ;
   ;error
+  ;
   jmp kernel_not_found_error
 
 
@@ -131,19 +140,24 @@ start:
   mov cl, [bdb_sectors_per_fat]
   mov dl, [ebr_drive_number]
   call disk_read
-
+  ;
   ; read kernel and process fat chain
+  ;
   mov bx, KERNEL_LOAD_SEGMENT
   mov es,bx
   mov bx, KERNEL_LOAD_OFFSET
 
+  ;
+  ; loading kernel
+  ;
 .load_kernel_loop:
-  ; read next cluster
+  ; reading next cluster
   mov ax, [stage2_cluster]
   add ax,31
   mov cl,1
   mov dl, [ebr_drive_number]
-  call disk_read ;; I HAD FORGOTTEN TO CALL THE DISK READ WHILE LOADING THE KERNEL BRUHHHH
+
+  call disk_read
 
   add bx,[bdb_bytes_per_sector]
 
@@ -176,29 +190,25 @@ start:
 
 .read_finish:
   mov dl, [ebr_drive_number]
-  mov ax,KERNEL_LOAD_SEGMENT ; moved offset instead of segment to ax by mistake..
+  mov ax,KERNEL_LOAD_SEGMENT
   mov ds,ax
   mov es,ax
-
   jmp KERNEL_LOAD_SEGMENT: KERNEL_LOAD_OFFSET
-
   jmp wait_key_and_reboot
-
-
-
   cli
   hlt
+
 ;
-;;;;;;;
+; boot process fails
 ;
 boot_process_failed:
   mov si,msg_boot_process_failed
   call prints
   jmp wait_key_and_reboot
-;
-;
-;
 
+;
+; failed to find kernel
+;
 kernel_not_found_error:
   mov si, msg_stage2_not_found
   call prints
@@ -208,9 +218,7 @@ wait_key_and_reboot:
   mov ah,0
   int 16h
   jmp 0FFFFh:0
-;
-;;;;
-;
+
 .halt:
   cli
   hlt
@@ -222,9 +230,7 @@ prints:
   push si ; source index register 16bits pointer register
   push ax ; accumulator register 16bits general purpose register
   push bx
-;
-; main print loop
-;
+
 .loop:
   lodsb ; loads the byte (one character at a time) at [DS:SI] into AL then moves it to SI
   or al,al ; verifies if current byte is null or not by doing a bitwise or inbetween al and al
@@ -234,6 +240,7 @@ prints:
   mov bh,0 ; moves 0 to bh (makes default page to display be 0)
   int 0x10 ; initializes bios video interupt aka prints the character
   jmp .loop ; loops if more strings left
+
 ;
 ; jump to done after print loop is done
 ;
@@ -241,14 +248,12 @@ prints:
   pop bx
   pop ax ; removing the defined in prints in reverse order
   pop si
-
   ret
-; ;
+;
+
 ; Disk routines
 ; convert lba to chs since bootloader only supports chs
-; Convert the lba to chs system since that's what a floppy uses
-
-
+; Convert the lba to chs system
 lba_to_chs:
   push ax
   push dx
@@ -282,31 +287,25 @@ disk_read:
 
   mov ah,02h
   mov di, 3
-;
-;
-;
+
 .retry:
   pusha
   stc
   int 13h
   jnc .done
-
-  ; reading disk fails
+  ;
+  ; if reading disk fails
+  ;
   popa
   call disk_reset
-
-  dec di; istg if this was indented wrong
+  dec di
   test di,di
   jnz .retry
-;
-;
-;
+
 .fail:
  ; failed
   jmp boot_process_failed
-;
-;
-;
+
 .done:
   popa
 
@@ -317,18 +316,19 @@ disk_read:
   pop ax
   ret
 ;
-;
+; reset disk
 ;
 disk_reset:
   pusha
-  mov ah, 0 ; why was this 00h
-  stc ; why was i
+  mov ah, 0
+  stc
   int 13h
   jc boot_process_failed
   popa
   ret
+
 ;
-; main program loop ends
+; print messages
 ;
 msg_loading: db "Loading...", ENDL,0
 msg_boot_process_failed: db "Read disk fail", ENDL,0
@@ -336,6 +336,9 @@ msg_stage2_not_found: db "stage2.bin not found!", ENDL, 0
 file_stage2_bin: db 'STAGE2  BIN'
 stage2_cluster:  dw 0
 
+;
+;
+;
 KERNEL_LOAD_SEGMENT equ 0x2000
 KERNEL_LOAD_OFFSET equ 0
 
