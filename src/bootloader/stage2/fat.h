@@ -1,6 +1,7 @@
 #pragma once
 #include "stdint.h"
 #include "disk.h"
+#include "fardef.h"
 
 #pragma pack(push,1)
 

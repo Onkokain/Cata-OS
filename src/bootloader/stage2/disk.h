@@ -1,5 +1,5 @@
 #pragma once
-
+#include "fardef.h"
 #include "stdint.h"
 
 typedef struct {
