@@ -1,5 +1,5 @@
 #pragma once
 #include "fardef.h"
 void putc(char c);
-void puts(const char* str);
-void _cdecl printf(const char* fmt, ...);
+void puts(const char *str);
+void _cdecl printf(const char *fmt, ...);
