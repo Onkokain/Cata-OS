@@ -1,0 +1,30 @@
+# Toolchain
+toolchain/
+git-toolchain/
+*.tar.xz
+
+# Build outputs
+*.o
+*.bin
+*.img
+*.elf
+*.iso
+*.map
+*.lst
+
+# Build directories
+build/
+build_scripts/          # ← Added as requested
+
+# Recursive build folders (in case any appear inside src/)
+**/build/
+
+
+# Temporary files
+*.tmp
+*.log
+
+# Editor / IDE files
+.vscode/
+*.swp
+*.swo

@@ -339,8 +339,8 @@ stage2_cluster:  dw 0
 ;
 ;
 ;
-KERNEL_LOAD_SEGMENT equ 0x2000
-KERNEL_LOAD_OFFSET equ 0
+KERNEL_LOAD_SEGMENT equ 0x0
+KERNEL_LOAD_OFFSET equ 500
 
 times 510-($-$$) db 0 ; makes the number of bytes =512 since using a floppy to boot
 

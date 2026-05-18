@@ -1,0 +1,9 @@
+# toolchain sources/builds
+toolchain/
+*.tar.xz
+
+# build outputs
+*.o
+*.bin
+*.img
+build/
