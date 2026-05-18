@@ -14,7 +14,7 @@ void _cdecl cstart_(uint16_t bootDrive) {
   if (!FAT_Init(&disk)) {
     printf("FAT init failed..\n");
     goto end;
-  }
+}
   // browse
 
   FAT_File far *fd = FAT_Open(&disk, "/");
@@ -31,7 +31,11 @@ void _cdecl cstart_(uint16_t bootDrive) {
   // read test.txt
   char buffer[100];
   uint32_t read;
-  fd = FAT_Open(&disk, "test.txt"); // WILL FAIL IF FOLDER DOESNT EXIST #fix
+  fd = FAT_Open(&disk, "teast.txt"); // WILL FAIL IF FOLDER DOESNT EXIST #fix
+  if(!fd){
+    printf("Reading failed!");
+    goto end;
+  }
   while ((read = FAT_Read(&disk, fd, sizeof(buffer), buffer))) {
     for (uint32_t i = 0; i < read; i++) {
       if (buffer[i] == '\n')

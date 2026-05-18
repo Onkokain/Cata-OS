@@ -191,7 +191,7 @@ uint32_t FAT_Read(DISK *disk, FAT_File far *file, uint32_t byteCount,
 
     if (leftInBuffer == take) {
       if (fd->Public.Handle == ROOT_DIRECTORY_HANDLE) {
-        ++fd->CurrentCluster;
+        uint32_t rootDirLba=fd->FirstCluster;
 
         if (!DISK_ReadSectors(disk, fd->CurrentCluster, 1, fd->Buffer)) {
           printf("FAT: error while reading..\n");
@@ -294,7 +294,7 @@ FAT_File far *FAT_Open(DISK *disk, const char *path) {
     FAT_DirectoryEntry entry;
     if (FAT_FindFile(disk, current, name, &entry)) {
       FAT_Close(current);
-      if (!isLast && entry.Attributes & FAT_ATTRIBUTE_DIRECTORY == 0) {
+      if (!isLast && (entry.Attributes & FAT_ATTRIBUTE_DIRECTORY) == 0) {
         printf("FAT: %s not a directory.\n", name);
         return NULL;
       }
