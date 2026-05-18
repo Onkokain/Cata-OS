@@ -1,5 +1,7 @@
 TARGET_ASMFLAGS += -f elf
 TARGET_CFLAGS+= -ffreestanding -nostdlib
+TARGET_LIBS+= lgcc
+TARGET_LINKFLAGS+= -T linker.ld -nostdlib
 
 SOURCES_C = $(wildcard *.c)
 SOURCES_ASM = $(wildcard *.asm)
@@ -14,10 +16,10 @@ all: stage2
 stage2: $(BUILD_DIR)/stage2.bin
 
 $(BUILD_DIR)/stage2.bin: $(OBJECTS_ASM) $(OBJECTS_C)
-	$(LD16) NAME $(BUILD_DIR)/stage2.bin FILE \{ $(OBJECTS_ASM) $(OBJECTS_C) \} OPTION MAP=$(BUILD_DIR)/stage2.map @linker.lnk
+	$(TARGET_LD) $(TARGET_LINKFLAGS) -Wl,-Map=$(BUILD_DIR)/stage2.map -o $@ $^
 
 $(BUILD_DIR)/stage2/c/%.obj: %.c always
-	$(TARGET_CC) $(TARGET_CFLAGS) -c -o=$@ $<
+	$(TARGET_CC) $(TARGET_CFLAGS) -c -o $@ $<
 
 $(BUILD_DIR)/stage2/asm/%.obj: %.asm always
 	$(TARGET_ASM) $(TARGET_ASMFLAGS) -o $@ $<
