@@ -1,11 +1,43 @@
 #include "stdio.h"
-#include "x86.h"
+#include <stdarg.h>
+#include <stdbool.h>
+const unsigned SCREEN_WIDTH=80;
+const unsigned SCREEN_HEIGHT=25;
+uint8_t g_ScreenBuffer = (uint8_t*)0xB8000;
+int g_ScreenX=0;
+int g_ScreenY=0;
+
+void putchr(int x, int y, char c) {
+  g_ScreenBuffer[2*(y * SCREEN_WIDTH+x)];
+}
+
+void putcolor(int x, int y, char c) {
+  g_ScreenBuffer[2*(y * SCREEN_WIDTH+x)+1];
+}
 
 void putc(char c) {
-  if (c == '\n') {
-    x86_Video_WriteCharTeletype('\r', 0);
+  switch (c) {
+    case '\n':
+         g_ScreenX=0;
+         g_ScreenY++;
+         break;
+    case '\r':
+        g_ScreenX=0;
+        break;
+    case '\t':
+        for (int i=0;i<4 - (g_ScreenX % 4);i++) {
+          putc(" ");
+          break;
+        }
+    default:
+        putchr(g_ScreenX,g_ScreenY,c);
+        g_ScreenX++;
+        break;
   }
-  x86_Video_WriteCharTeletype(c, 0);
+  if (g_ScreenX>=SCREEN_WIDTH) {
+    g_ScreenX=0;
+    g_ScreenY++;
+  }
 }
 
 void puts(const char *str) {
@@ -14,131 +46,9 @@ void puts(const char *str) {
     str++;
   }
 }
-#define state_normal 0
-#define state_length 1
-#define state_length_s 2
-#define state_length_l 3
-#define state_specifier 4
 
-#define length_default 0
-#define length_ss 1
-#define length_s 2
-#define length_l 3
-#define length_ll 4
 
-int *printf_number(int *argp, int length, bool sign, int basex);
-
-void _cdecl printf(const char *fmt, ...) {
-  int *argp = (int *)(&fmt);
-  int state = state_normal;
-  int length = length_default;
-  int basex = 10;
-  bool sign = false; // havent typedef bool expecting default case use
-
-  argp++;
-  while (*fmt) {
-    switch (state) {
-    case state_normal:
-      switch (*fmt) {
-      case '%':
-        state = state_length;
-        break;
-
-      default:
-        putc(*fmt);
-        break;
-      }
-      break;
-
-    case state_length:
-      switch (*fmt) {
-      case 'l':
-        length = length_l;
-        state = state_length_l;
-        break;
-
-      case 'h':
-        length = length_s;
-        state = state_length_s;
-        break;
-
-      default:
-        goto state_specifier_;
-      }
-      break;
-
-    case state_length_s:
-      if (*fmt == 'h') {
-        length = length_ss;
-        state = state_specifier;
-      } else
-        goto state_specifier_;
-      break;
-    case state_length_l:
-      if (*fmt == 'l') {
-        length = length_ll;
-        state = state_specifier;
-      } else
-        goto state_specifier_;
-      break;
-
-    case state_specifier:
-    state_specifier_: // jump label
-      switch (*fmt) {
-      case 'c':
-        putc((char)*argp);
-        argp++;
-        break;
-
-      case 's':
-        puts((char *)*argp);
-        argp++;
-        break;
-
-      case '%':
-        putc('%');
-        break;
-
-      case 'd':
-      case 'i':
-        basex = 10;
-        sign = true;
-        argp = printf_number(argp, length, sign, basex);
-        break;
-
-      case 'u':
-        basex = 10;
-        sign = false;
-        argp = printf_number(argp, length, sign, basex);
-        break;
-
-      case 'X':
-      case 'x':
-      case 'p':
-        basex = 16;
-        sign = false;
-        argp = printf_number(argp, length, sign, basex);
-        break;
-      case 'o':
-        basex = 8;
-        sign = false;
-        argp = printf_number(argp, length, sign, basex);
-        break;
-      default:
-        break;
-      }
-      state = state_normal;
-      length = length_default;
-      basex = 10;
-      sign = false;
-      break;
-    }
-
-    fmt++;
-  }
-}
-const char g_HexChars[] = "0123456789abcdef";
-int *printf_number(int *argp, int length, bool sign, int basex) {
+int *printf_unsgined(int *argp, int length, bool sign, int basex) {
   char buffer[32];
   unsigned long long number;
   int number_sign = 1;
@@ -204,4 +114,130 @@ int *printf_number(int *argp, int length, bool sign, int basex) {
     putc(buffer[pos]);
   }
   return argp;
+
 }
+
+#define state_normal 0
+#define state_length 1
+#define state_length_s 2
+#define state_length_l 3
+#define state_specifier 4
+
+#define length_default 0
+#define length_ss 1
+#define length_s 2
+#define length_l 3
+#define length_ll 4
+
+
+void  printf(const char *fmt, ...) {
+
+  va_list args;
+  va_start(args,fmt);
+
+  int state = state_normal;
+  int length = length_default;
+  int basex = 10;
+  bool sign = false; // havent typedef bool expecting default case use
+
+  while (*fmt) {
+    switch (state) {
+    case state_normal:
+      switch (*fmt) {
+      case '%':
+        state = state_length;
+        break;
+
+      default:
+        putc(*fmt);
+        break;
+      }
+      break;
+
+    case state_length:
+      switch (*fmt) {
+      case 'l':
+        length = length_l;
+        state = state_length_l;
+        break;
+
+      case 'h':
+        length = length_s;
+        state = state_length_s;
+        break;
+
+      default:
+        goto state_specifier_;
+      }
+      break;
+
+    case state_length_s:
+      if (*fmt == 'h') {
+        length = length_ss;
+        state = state_specifier;
+      } else
+        goto state_specifier_;
+      break;
+    case state_length_l:
+      if (*fmt == 'l') {
+        length = length_ll;
+        state = state_specifier;
+      } else
+        goto state_specifier_;
+      break;
+
+    case state_specifier:
+    state_specifier_: // jump label
+      switch (*fmt) {
+      case 'c':
+        putc((char)va_arg(args,int));
+        argp++;
+        break;
+
+      case 's':
+        puts(va_arg(args,const char*));
+        break;
+
+      case '%':
+        putc('%');
+        break;
+
+      case 'd':
+      case 'i':
+        basex = 10;
+        sign = true;
+        argp = printf_number(argp, length, sign, basex);
+        break;
+
+      case 'u':
+        basex = 10;
+        sign = false;
+        argp = printf_number(argp, length, sign, basex);
+        break;
+
+      case 'X':
+      case 'x':
+      case 'p':
+        basex = 16;
+        sign = false;
+        argp = printf_number(argp, length, sign, basex);
+        break;
+      case 'o':
+        basex = 8;
+        sign = false;
+        argp = printf_number(argp, length, sign, basex);
+        break;
+      default:
+        break;
+      }
+      state = state_normal;
+      length = length_default;
+      basex = 10;
+      sign = false;
+      break;
+    }
+
+    fmt++;
+  }
+}
+const char g_HexChars[] = "0123456789abcdef";
