@@ -3,7 +3,8 @@
 #include <stdbool.h>
 const unsigned SCREEN_WIDTH=80;
 const unsigned SCREEN_HEIGHT=25;
-uint8_t g_ScreenBuffer = (uint8_t*)0xB8000;
+const char g_HexChars[] = "0123456789abcdef";
+uint8_t* g_ScreenBuffer = (uint8_t*)0xB8000;
 int g_ScreenX=0;
 int g_ScreenY=0;
 
@@ -26,9 +27,9 @@ void putc(char c) {
         break;
     case '\t':
         for (int i=0;i<4 - (g_ScreenX % 4);i++) {
-          putc(" ");
-          break;
+          putc(' ');
         }
+        break;
     default:
         putchr(g_ScreenX,g_ScreenY,c);
         g_ScreenX++;
@@ -48,73 +49,26 @@ void puts(const char *str) {
 }
 
 
-int *printf_unsgined(int *argp, int length, bool sign, int basex) {
+void printf_unsigned(unsigned long long number, int basex) {
   char buffer[32];
-  unsigned long long number;
-  int number_sign = 1;
   int pos = 0;
-
-  switch (length) {
-  case length_ss:
-  case length_s:
-  case length_default:
-    if (sign) {
-      int n = *argp;
-      if (n < 0) {
-        n = -n;
-        number_sign = -1;
-      }
-      number = (unsigned long long)n;
-    } else {
-      number = *(unsigned int *)argp;
-    }
-    argp++;
-    break;
-
-  case length_l:
-    if (sign) {
-      long int n = *(long int *)argp;
-      if (n < 0) {
-        n = -n;
-        number_sign = -1;
-      }
-      number = n;
-    } else {
-      number = *(unsigned long int *)argp;
-    }
-    argp += 2;
-    break;
-
-  case length_ll:
-    if (sign) {
-      long long int n = *(long long int *)argp;
-      if (n < 0) {
-        n = -n;
-        number_sign = -1;
-      }
-      number = n;
-    } else {
-      number = *(unsigned long long *)argp;
-    }
-    argp += 4;
-    break;
-  }
-
+  // convert number to ascii code
   do {
-    uint32_t rem;
-    x86_div64_32(number, basex, &number, &rem);
-    buffer[pos++] = g_HexChars[rem];
+    unsigned long long rem=number % basex;
+    number/=basex;
+    buffer[pos++]=g_HexChars[rem];
   } while (number > 0);
-
-  if (sign && number_sign < 0) {
-    buffer[pos++] = '-';
-  }
-
-  while (--pos >= 0) {
+ // printing in reverse order
+  while (--pos >= 0)
     putc(buffer[pos]);
-  }
-  return argp;
+}
 
+void printf_signed(signed long long number, int basex) {
+  if (number<0) {
+    putc('-');
+    printf_unsigned(-number,basex);
+  }
+  else printf_unsigned(number, basex);
 }
 
 #define state_normal 0
@@ -138,7 +92,8 @@ void  printf(const char *fmt, ...) {
   int state = state_normal;
   int length = length_default;
   int basex = 10;
-  bool sign = false; // havent typedef bool expecting default case use
+  bool sign = false;
+  bool isnumber=false;
 
   while (*fmt) {
     switch (state) {
@@ -191,7 +146,6 @@ void  printf(const char *fmt, ...) {
       switch (*fmt) {
       case 'c':
         putc((char)va_arg(args,int));
-        argp++;
         break;
 
       case 's':
@@ -204,31 +158,68 @@ void  printf(const char *fmt, ...) {
 
       case 'd':
       case 'i':
+        isnumber=true;
         basex = 10;
         sign = true;
-        argp = printf_number(argp, length, sign, basex);
         break;
 
       case 'u':
+        isnumber=true;
         basex = 10;
         sign = false;
-        argp = printf_number(argp, length, sign, basex);
         break;
 
       case 'X':
       case 'x':
       case 'p':
+        isnumber=true;
         basex = 16;
         sign = false;
-        argp = printf_number(argp, length, sign, basex);
         break;
       case 'o':
+        isnumber=true;
         basex = 8;
         sign = false;
-        argp = printf_number(argp, length, sign, basex);
         break;
+
       default:
         break;
+      }
+      if (isnumber) {
+          if (sign) {
+            switch (length) {
+              case length_ss:
+              case length_s:
+              case length_default:
+                  printf_signed(va_arg(args,int),basex);
+                  break;
+
+            case length_l:
+                printf_signed(va_arg(args,long),basex);
+                break;
+
+            case length_ll:
+                printf_signed(va_arg(args,long long),basex);
+                break;
+            }
+          }
+          else {
+            switch (length) {
+              case length_ss:
+              case length_s:
+              case length_default:
+                  printf_unsigned(va_arg(args,unsigned int),basex);
+                  break;
+
+            case length_l:
+                printf_unsigned(va_arg(args,unsigned long),basex);
+                break;
+
+            case length_ll:
+                printf_unsigned(va_arg(args,unsigned long long),basex);
+                break;
+            }
+          }
       }
       state = state_normal;
       length = length_default;
@@ -240,4 +231,3 @@ void  printf(const char *fmt, ...) {
     fmt++;
   }
 }
-const char g_HexChars[] = "0123456789abcdef";
