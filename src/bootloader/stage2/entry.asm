@@ -105,7 +105,7 @@ A20WaitOutput:
   [bits 16] ; 16 bits real mode code
   in al, CommandPort ; read one byte from commandport and store in al
   test al,1 ; bitwise and
-  jnz A20WaitOutput ; jump if not 0
+  jz A20WaitOutput ; jump if not 0
   ret
 
 LoadGDT: ; global descriptor
