@@ -7,7 +7,8 @@
 // void far *g_data = (void far *)0x00500200;
 
 void __attribute__((cdecl)) start(uint16_t bootDrive) {
-    printf("Hello world!sdoisadoiuadsiuasdoiasduasdiouasdsuou!");
+    clrscr();
+    printf("Hello world");
 //   DISK disk;
 //   if (!DISK_init(&disk, bootDrive)) {
 //     printf("disk init failed..\n");
