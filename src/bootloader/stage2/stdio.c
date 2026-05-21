@@ -9,11 +9,11 @@ int g_ScreenX=0;
 int g_ScreenY=0;
 
 void putchr(int x, int y, char c) {
-  g_ScreenBuffer[2*(y * SCREEN_WIDTH+x)];
+  g_ScreenBuffer[2*(y * SCREEN_WIDTH+x)]=c;
 }
 
-void putcolor(int x, int y, char c) {
-  g_ScreenBuffer[2*(y * SCREEN_WIDTH+x)+1];
+void putcolor(int x, int y, char color) {
+  g_ScreenBuffer[2*(y * SCREEN_WIDTH+x)+1]=color;
 }
 
 void putc(char c) {
@@ -32,6 +32,7 @@ void putc(char c) {
         break;
     default:
         putchr(g_ScreenX,g_ScreenY,c);
+        putcolor(g_ScreenX,g_ScreenY,0x0F);
         g_ScreenX++;
         break;
   }
@@ -85,7 +86,6 @@ void printf_signed(signed long long number, int basex) {
 
 
 void  printf(const char *fmt, ...) {
-
   va_list args;
   va_start(args,fmt);
 
@@ -225,9 +225,11 @@ void  printf(const char *fmt, ...) {
       length = length_default;
       basex = 10;
       sign = false;
+      isnumber=false;
       break;
     }
 
     fmt++;
   }
+  va_end(args);
 }

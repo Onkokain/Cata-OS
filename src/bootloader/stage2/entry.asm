@@ -17,41 +17,38 @@ entry:
 
     ;
     mov [g_BootDrive],dl ; moves dl to address 0
-    xor ax,ax
-    mov ds,ax
-    mov ss,ax
-    mov sp,0x7C00
+
+    mov ax, ds
+    mov ss, ax
+    mov sp, 0xFFF0
     mov bp, sp
-    sti ; setups interrupt flags
 
   ; switching to 32 bits protected mode
     call EnableA20
     call LoadGDT
 
     mov eax,cr0
-    or eax , 1
+    or al , 1
     mov cr0,eax
 
     ; far jump into protected mode
     jmp dword 08h:.pmode
 
-bits 32
 .pmode:
+  [bits 32]
   ; 32 bit protected mode starts
   ;setting up segments registers
   mov ax,0x10
   mov ds,ax
   mov ss,ax
   mov es,ax
-  mov fs,ax
-  mov gs,ax
-  mov esp, 0x90000
 
   ; remove uninit data ;C equivalent code: memset(__bss_start, 0, __end - __bss_start);
+
   mov edi, __bss_start ; address of start
   mov ecx, __end ; address of end
   sub ecx,edi ; size=(end-start)
-  xor eax,eax
+  mov al,0
   cld ; clears directory flag
   rep stosb ; repeat store string byte; stores at edi and repeats it ecx times
 
@@ -164,8 +161,5 @@ g_GDTDesc:
   dd g_GDT
 
  g_BootDrive:
-  [bits 16] ; 16 bits real mode code
   db 0
 
-times 510-($-$$) db 0
-dw 0AA55h
