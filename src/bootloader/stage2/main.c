@@ -1,11 +1,13 @@
 #include <stdint.h>
+#include "stdio.h"
 // #include "disk.h"
 // #include "fat.h"
 // #include "stdio.h"
 
 // void far *g_data = (void far *)0x00500200;
 
-void __attribute__((cdecl)) cstart_(uint16_t bootDrive) {
+void __attribute__((cdecl)) start(uint16_t bootDrive) {
+    printf("Hello world!sdoisadoiuadsiuasdoiasduasdiouasdsuou!");
 //   DISK disk;
 //   if (!DISK_init(&disk, bootDrive)) {
 //     printf("disk init failed..\n");

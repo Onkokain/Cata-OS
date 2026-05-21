@@ -330,7 +330,7 @@ disk_reset:
 ;
 ; print messages
 ;
-msg_loading: db "Loading...", ENDL,0
+msg_loading: db "Loading...", ENDL,0 ; getting corrupted problem somewhere
 msg_boot_process_failed: db "Read disk fail", ENDL,0
 msg_stage2_not_found: db "stage2.bin not found!", ENDL, 0
 file_stage2_bin: db 'STAGE2  BIN'
