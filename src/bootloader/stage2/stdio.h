@@ -10,3 +10,4 @@ void putc(char c);
 void puts(const char *str);
 void printf(const char *fmt, ...);
 void setcursor(int x, int y);
+void scrollback(int lines);

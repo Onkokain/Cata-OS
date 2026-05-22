@@ -19,6 +19,15 @@ void putcolor(int x, int y, char color) {
   g_ScreenBuffer[2*(y * SCREEN_WIDTH+x)+1]=color;
 }
 
+char getchr(int x, int y) {
+  return g_ScreenBuffer[2*(y * SCREEN_WIDTH+x)];
+}
+
+uint8_t getcolor(int x, int y) {
+  return g_ScreenBuffer[2*(y * SCREEN_WIDTH+x)+1];
+}
+
+
 void setcursor(int x, int y) {
   int pos=y*SCREEN_WIDTH+x;
 
@@ -39,6 +48,22 @@ void clrscr() {
   }
 
   }
+}
+
+void scrollback(int lines) {
+  for (int y=lines; y<SCREEN_HEIGHT; y++) {
+      for (int x=0; x<SCREEN_WIDTH; x++) {
+        putchr(x, y-lines, getchr(x,y));
+        putcolor(x, y-lines, getcolor(x,y));
+      }
+  }
+  for (int y=SCREEN_HEIGHT - lines; y< SCREEN_HEIGHT; y++) {
+    for (int x=0 ; x<SCREEN_WIDTH ; x++) {
+    putchr(x,y,'\0');
+    putcolor(x,y,DEFAULT_COLOR);
+    }
+  }
+  g_ScreenY-=lines;
 }
 
 void putc(char c) {
@@ -64,6 +89,9 @@ void putc(char c) {
   if (g_ScreenX>=SCREEN_WIDTH) {
     g_ScreenX=0;
     g_ScreenY++;
+  }
+  if (g_ScreenY>= SCREEN_HEIGHT) {
+    scrollback(1);
   }
   setcursor(g_ScreenX, g_ScreenY);
 }

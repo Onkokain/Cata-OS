@@ -7,9 +7,12 @@
 // void far *g_data = (void far *)0x00500200;
 
 void __attribute__((cdecl)) start(uint16_t bootDrive) {
-    clrscr();
-    printf("Hello world!");
-    printf("\nAaaaaaaaaaa");
+
+  clrscr();
+
+  for (int i=0; i<30; i++) {
+    printf("Hello world! %d\n", i);
+  }
 }
 
 
