@@ -8,7 +8,54 @@
 
 void __attribute__((cdecl)) start(uint16_t bootDrive) {
     clrscr();
-    printf("Hello world");
+    printf("Hello world!");
+    printf("\nAaaaaaaaaaa");
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //   DISK disk;
 //   if (!DISK_init(&disk, bootDrive)) {
 //     printf("disk init failed..\n");
@@ -51,4 +98,3 @@ void __attribute__((cdecl)) start(uint16_t bootDrive) {
 // end:
 //   while (1) {
 //   };
-}

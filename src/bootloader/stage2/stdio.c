@@ -1,4 +1,5 @@
 #include "stdio.h"
+#include "x86.h"
 #include <stdarg.h>
 #include <stdbool.h>
 
@@ -16,6 +17,17 @@ void putchr(int x, int y, char c) {
 
 void putcolor(int x, int y, char color) {
   g_ScreenBuffer[2*(y * SCREEN_WIDTH+x)+1]=color;
+}
+
+void setcursor(int x, int y) {
+  int pos=y*SCREEN_WIDTH+x;
+
+  x86_outb(0x3D4, 0x0F);
+  x86_outb(0x3D5, (uint8_t)(pos & 0xFF));
+
+  x86_outb(0x3D4, 0x0E);
+  x86_outb(0x3D5, (uint8_t)((pos >> 8) & 0xFF));
+
 }
 
 
@@ -53,6 +65,7 @@ void putc(char c) {
     g_ScreenX=0;
     g_ScreenY++;
   }
+  setcursor(g_ScreenX, g_ScreenY);
 }
 
 void puts(const char *str) {
