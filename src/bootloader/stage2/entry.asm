@@ -142,7 +142,7 @@ g_GDT:
         dw 0FFFFh
         dw 0
         db 0
-        db 10010010b
+        db 10011010b
         db 00001111b
         db 0
 

@@ -1,18 +1,23 @@
 #include <stdint.h>
 #include "stdio.h"
+#include "x86.h"
 // #include "disk.h"
 // #include "fat.h"
 // #include "stdio.h"
 
 // void far *g_data = (void far *)0x00500200;
 
-void __attribute__((cdecl)) start(uint16_t bootDrive) {
-
-  clrscr();
-
-  for (int i=0; i<30; i++) {
-    printf("Hello world! %d\n", i);
+void puts_realmode(const char* str) {
+  while (*str) {
+    RealMode_Putc(*str);
+    ++str;
   }
+}
+
+void __attribute__((cdecl)) start(uint16_t bootDrive) {
+  printf("Hello!!\n");
+  puts_realmode("apple real mode\n");
+
 }
 
 

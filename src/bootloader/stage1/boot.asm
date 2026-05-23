@@ -143,9 +143,9 @@ start:
   ;
   ; read kernel and process fat chain
   ;
-  mov bx, KERNEL_LOAD_SEGMENT
+  mov bx, STAGE2_LOAD_SEGMENT
   mov es,bx
-  mov bx, KERNEL_LOAD_OFFSET
+  mov bx, STAGE2_LOAD_OFFSET
 
   ;
   ; loading kernel
@@ -190,10 +190,10 @@ start:
 
 .read_finish:
   mov dl, [ebr_drive_number]
-  mov ax,KERNEL_LOAD_SEGMENT
+  mov ax,STAGE2_LOAD_SEGMENT
   mov ds,ax
   mov es,ax
-  jmp KERNEL_LOAD_SEGMENT: KERNEL_LOAD_OFFSET
+  jmp STAGE2_LOAD_SEGMENT: STAGE2_LOAD_OFFSET
   jmp wait_key_and_reboot
   cli
   hlt
@@ -339,8 +339,8 @@ stage2_cluster:  dw 0
 ;
 ;
 ;
-KERNEL_LOAD_SEGMENT equ 0x0
-KERNEL_LOAD_OFFSET equ 0x500
+STAGE2_LOAD_SEGMENT equ 0x0
+STAGE2_LOAD_OFFSET equ 0x500
 
 times 510-($-$$) db 0 ; makes the number of bytes =512 since using a floppy to boot
 
