@@ -5,6 +5,7 @@ OUTPUT_ARCH(i386)
 SECTIONS
 {
   . = 0x00000500;
+
   .entry : {__entry_start = .; *(.entry)}
   .text  : {__text_start = .;  *(.text)}
   .data  : {__data_start = .;  *(.data)}

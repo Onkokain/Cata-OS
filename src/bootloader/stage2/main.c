@@ -7,16 +7,22 @@
 
 // void far *g_data = (void far *)0x00500200;
 
-void puts_realmode(const char* str) {
-  while (*str) {
-    RealMode_Putc(*str);
-    ++str;
-  }
-}
+// void puts_realmode(const char* str) {
+//   while (*str) {
+//     RealMode_Putc(*str);
+//     ++str;
+//   }
+// }
 
 void __attribute__((cdecl)) start(uint16_t bootDrive) {
-  printf("Hello!!\n");
-  puts_realmode("apple real mode\n");
+  uint8_t driveType;
+  uint16_t cylinders;
+  uint16_t sectors;
+  uint16_t heads;
+
+  x86_Disk_GetDriveParameters(bootDrive, &driveType, &cylinders, &sectors, &heads);
+  printf("drivetype:%u \n cyls=%u \n sectors=%u \n heads=%u \n",driveType,cylinders,sectors,heads);
+  // puts_realmode("apple real mode\n");
 
 }
 
