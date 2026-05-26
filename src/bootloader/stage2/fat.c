@@ -5,6 +5,7 @@
 #include "string.h"
 #include "utility.h"
 #include "memory.h"
+#include <stddef.h>
 
 #define SECTOR_SIZE 512
 #define MAX_PATH_SIZE 256
@@ -150,7 +151,7 @@ FAT_File  *FAT_OpenEntry(DISK *disk, FAT_DirectoryEntry *entry) {
 
   if (!DISK_ReadSectors(disk, FAT_ClusterToLba(fd->CurrentCluster), 1,
                         fd->Buffer)) {
-    printf("FAT: read error \n");
+    printf("FAT: open entry read error \n");
     return false;
   }
 
