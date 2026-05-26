@@ -255,7 +255,7 @@ bool FAT_FindFile(DISK *disk, FAT_File  *file, const char *name,
   for (int i = 0; i < 8 && name[i] && name + i < ext; i++)
     fatName[i] = toupper(name[i]);
 
-  if (ext != NULL) {
+  if (ext != NULL) { //buggy code
     for (int i = 0; i < 3 && ext[i + 1]; i++) {
       fatName[i + 8] = toupper(ext[i + 1]);
     }
