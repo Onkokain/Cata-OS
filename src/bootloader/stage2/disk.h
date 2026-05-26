@@ -1,6 +1,6 @@
 #pragma once
-#include "fardef.h"
-#include "stdint.h"
+#include <stdint.h>
+#include <stdbool.h>
 
 typedef struct {
   uint8_t id;
@@ -13,4 +13,4 @@ typedef struct {
 bool DISK_init(DISK *disk, uint8_t driveNumber);
 
 bool DISK_ReadSectors(DISK *disk, uint32_t lba, uint8_t sectors,
-                      void far *dataOut);
+                      void  *lowerDataOut);

@@ -26,12 +26,12 @@ void DISK_LBA_CHS(DISK *disk, uint32_t lba, uint16_t *cylinderOut,
 }
 
 bool DISK_ReadSectors(DISK *disk, uint32_t lba, uint8_t sectors,
-                      void far *dataOut) {
+                      void   *lowerDataOut) {
   uint16_t cylinder, sector, head;
 
   DISK_LBA_CHS(disk, lba, &cylinder, &sector, &head);
   for (int i = 0; i < 3; i++) {
-    if (x86_Disk_Read(disk->id, cylinder, sector, head, sectors, dataOut))
+    if (x86_Disk_Read(disk->id, cylinder, sector, head, sectors, lowerDataOut))
       return true;
     x86_Disk_Reset(disk->id);
   }

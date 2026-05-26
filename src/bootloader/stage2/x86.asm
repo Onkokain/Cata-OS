@@ -162,3 +162,74 @@ x86_Disk_GetDriveParameters:
   ret
 
 
+global x86_Disk_Reset
+x86_Disk_Reset:
+  [bits 32]
+  push ebp
+  mov ebp,esp
+
+  EnterRealMode
+
+  mov ah,0
+  mov dl,[bp+8]
+  stc
+  int 13h
+
+  mov eax,1
+  sbb eax,0
+
+  push eax
+
+  EnterProtectedMode
+  pop eax
+
+  mov esp,ebp
+  pop ebp
+  ret
+
+
+global x86_Disk_Read
+x86_Disk_Read:
+  [bits 32]
+  push ebp
+  mov ebp,esp
+
+  EnterRealMode
+
+  push ebx
+  push es
+
+  mov dl,[bp + 8]
+
+  mov ch, [bp + 12]
+  mov cl, [bp + 13]
+  shl cl, 6
+
+  mov al, [bp + 16]
+  and al, 3Fh
+  or cl, al
+
+  mov dh,[bp + 20]
+
+  mov al, [bp + 24]
+
+  LinearToSegOff [bp + 28], es, ebx, bx
+
+  mov ah,02h
+  stc
+  int 13h
+
+  mov eax,1
+  sbb eax,0
+
+  pop es
+  pop ebx
+
+  push eax
+  EnterProtectedMode
+  pop eax
+  mov esp,ebp
+  pop ebp
+  ret
+
+
