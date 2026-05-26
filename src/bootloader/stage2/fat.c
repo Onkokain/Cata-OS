@@ -151,7 +151,11 @@ FAT_File  *FAT_OpenEntry(DISK *disk, FAT_DirectoryEntry *entry) {
 
   if (!DISK_ReadSectors(disk, FAT_ClusterToLba(fd->CurrentCluster), 1,
                         fd->Buffer)) {
-    printf("FAT: open entry read error \n");
+    printf("FAT: open entry read error cluster=%u  lba=%u\r\n",fd->CurrentCluster, FAT_ClusterToLba(fd->CurrentCluster)
+  );
+    for (int i=0; i<11;i++)
+        printf("%c",entry->Name[i]);
+    printf("\n");
     return false;
   }
 

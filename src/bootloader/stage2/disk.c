@@ -1,16 +1,18 @@
 #include "disk.h"
 #include "x86.h"
+#include "stdio.h"
 
 bool DISK_init(DISK *disk, uint8_t driveNumber) {
   uint8_t driveType;
   uint16_t cylinders, sectors, heads;
-
+  // disk->id = driveNumber; // moved this to here
   if (!x86_Disk_GetDriveParameters(disk->id, &driveType, &cylinders, &sectors,
                                    &heads))
     return false;
   disk->id = driveNumber;
-  disk->cylinders = cylinders + 1;
-  disk->heads = heads + 1;
+
+  disk->cylinders = cylinders;
+  disk->heads = heads;
   disk->sectors = sectors;
 
   return true;
@@ -23,6 +25,7 @@ void DISK_LBA_CHS(DISK *disk, uint32_t lba, uint16_t *cylinderOut,
   *cylinderOut = (lba / disk->sectors) / disk->heads;
 
   *headOut = (lba / disk->sectors) % disk->heads;
+  // printf(" lba:%u  sectorsout:%u   headout:%u   cylindersout: %u heads: %u \n", lba, *sectorOut, *headOut, *cylinderOut, disk->heads);
 }
 
 bool DISK_ReadSectors(DISK *disk, uint32_t lba, uint8_t sectors,
