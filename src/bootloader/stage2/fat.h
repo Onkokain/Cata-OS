@@ -1,9 +1,6 @@
 #pragma once
 #include "disk.h"
-#include "fardef.h"
-#include "stdint.h"
-
-#pragma pack(push, 1)
+#include <stdint.h>
 
 typedef struct {
   uint8_t Name[11];
@@ -18,8 +15,7 @@ typedef struct {
   uint16_t ModifiedDate;
   uint16_t FirstClusterLow;
   uint32_t Size;
-} FAT_DirectoryEntry; // fix later
-#pragma pack(pop)
+} __attribute__((packed)) FAT_DirectoryEntry; // fix later // what to fix???
 
 typedef struct {
   int Handle;
@@ -41,11 +37,11 @@ enum FAT_Attributes {
 };
 
 bool FAT_Init(DISK *disk);
-FAT_File far *FAT_Open(DISK *disk, const char *path);
+FAT_File  *FAT_Open(DISK *disk, const char *path);
 
-uint32_t FAT_Read(DISK *disk, FAT_File far *file, uint32_t byteCount,
+uint32_t FAT_Read(DISK *disk, FAT_File *file, uint32_t byteCount,
                   void *dataOut);
-bool FAT_ReadEntry(DISK *disk, FAT_File far *file,
+bool FAT_ReadEntry(DISK *disk, FAT_File *file,
                    FAT_DirectoryEntry *dirEntry);
 
-void FAT_Close(FAT_File far *file);
+void FAT_Close(FAT_File *file);

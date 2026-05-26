@@ -11,3 +11,7 @@ void puts(const char *str);
 void printf(const char *fmt, ...);
 void setcursor(int x, int y);
 void scrollback(int lines);
+
+
+#define min(a, b) (((a) < (b)) ? (a) : (b))
+#define max(a, b) (((a) > (b)) ? (a) : (b))
