@@ -82,18 +82,20 @@ GDT_ENTRY(
             0xFFFFFF,
             GDT_ACCESS_PRESENT |
             GDT_ACCESS_RING0 |
-            GDT_ACCESS_CODE_SEGMENT |
+            GDT_ACCESS_DATA_SEGMENT |
             GDT_ACCESS_DATA_WRITABLE,
             GDT_FLAGS_32BIT |
             GDT_FLAGS_GRANULARITY_4KB),
 };
 
 
-GDTDescriptor g_GDTDescriptor = {sizeof(g_GDT)-1, (uint32_t)g_GDT};
+GDTDescriptor g_GDTDescriptor;
 
 void __attribute((cdecl)) i686_GDT_Load(GDTDescriptor* Descriptor, uint16_t codeSegment, uint16_t dataSegment);
 
 void i686_GDT_Initialize()
 {
+  g_GDTDescriptor.limit = sizeof(g_GDT) - 1;
+  g_GDTDescriptor.ptr = (uint32_t)g_GDT;
   i686_GDT_Load(&g_GDTDescriptor, i686_GDT_CODE_SEGMENT,i686_GDT_DATA_SEGMENT );
 }
