@@ -18,7 +18,8 @@ export TARGET_LD=$(TARGET)-gcc
 export TARGET_LIBS=
 export TARGET_LINKFLAGS=
 
-export SRC_DIR=$(abspath .)
+export SRC_DIR=src
+export OS_DIR= $(abspath .)
 export TOOLS_DIR=tools
 export BUILD_DIR=$(abspath build)
 

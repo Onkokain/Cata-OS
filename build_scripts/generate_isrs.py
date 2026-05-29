@@ -1,12 +1,16 @@
 import sys
+import os
 
-# if (len(sys.argv)) <=2:
+# if (len(sys.argv)) !=0:
 #   print("Incorrect usage!")
-#   print("Usage: generate_isrs.py <isrs_gen.c> <isrs_gen.inc>")
+#   print("Usage: generate_isrs.py")
 #   sys.exit(1)
 
-ISRS_GEN_C = "../src/kernel/arch/i686/isrs_gen.c"
-ISRS_GEN_ASM = "../src/kernel/arch/i686/isrs_gen.inc"
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+target_dir = os.path.normpath(os.path.join(script_dir, "..", "src", "kernel", "arch", "i686"))
+ISRS_GEN_C = os.path.join(target_dir, "isrs_gen.c")
+ISRS_GEN_ASM = os.path.join(target_dir, "isrs_gen.inc")
 
 ISRS_WITH_ERR_CODE = {8, 10, 11, 12, 13, 14, 17, 21, 29, 30}
 
@@ -36,13 +40,12 @@ with open(ISRS_GEN_C, "w") as f:
 # asm file
 
 with open(ISRS_GEN_ASM, "w") as f:
-  f.write(";; auto generated!! ;;")
-
+  f.write(";; auto generated!! ;;\n")
 
   for i in range(256):
       if i in ISRS_WITH_ERR_CODE:
-        f.write(f"ISR_ERRORCODE {i}\n")
+        f.write(f"ISR_ERROR {i}\n")
       else:
-        f.write(f"ISR_NOERRORCODE {i}\n")
+        f.write(f"ISR_NOERROR {i}\n")
 
 
