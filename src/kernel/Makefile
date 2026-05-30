@@ -10,6 +10,7 @@ OBJECTS_C = $(patsubst %.c, $(BUILD_DIR)/kernel/c/%.obj, $(SOURCES_C))
 
 HEADERS_ASM = $(shell find . -type f -name "*.inc")
 SOURCES_ASM = $(shell find . -type f -name "*.asm")
+
 OBJECTS_ASM = $(patsubst %.asm, $(BUILD_DIR)/kernel/asm/%.obj, $(SOURCES_ASM))
 
 .PHONY: all kernel clean always
@@ -33,6 +34,9 @@ $(BUILD_DIR)/kernel/asm/%.obj: %.asm always $(HEADERS_ASM)
 always:
 	mkdir -p $(BUILD_DIR)/kernel/c
 	mkdir -p $(BUILD_DIR)/kernel/asm
+
+# arch/i686/isrs_gen.c arch/i686/isrs_gen.inc:
+# 	@python $(OS_DIR)/build_scripts/generate_isrs.py $@
 
 clean:
 	rm -f $(BUILD_DIR)/kernel.bin

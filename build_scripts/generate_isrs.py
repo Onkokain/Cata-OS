@@ -1,10 +1,10 @@
 import sys
 import os
 
-# if (len(sys.argv)) !=0:
-#   print("Incorrect usage!")
-#   print("Usage: generate_isrs.py")
-#   sys.exit(1)
+if (len(sys.argv)) !=1:
+  print("Incorrect usage!")
+  print("Usage: generate_isrs.py")
+  sys.exit(1)
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
