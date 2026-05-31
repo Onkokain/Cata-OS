@@ -1,5 +1,7 @@
 #include "pic.h"
 #include "io.h"
+#include <stdbool.h>
+
 #define PIC1_COMMAND_PORT 0x20
 #define PIC1_DATA_PORT 0x21
 #define PIC2_COMMAND_PORT 0xA0
@@ -30,8 +32,13 @@ enum {
 
 } PIC_CMD;
 
+static uint16_t g_PicMask = 0xffff;
+static bool g_AutoEOI= false;
 
-void i686_PIC_Configure(uint8_t offsetPic1, uint8_t offsetPic2) {
+void i686_PIC_Configure(uint8_t offsetPic1, uint8_t offsetPic2, bool autoEOI) {
+
+  i686_PIC_SetMask(0xFFFF);
+
   x86_outb(PIC1_COMMAND_PORT, PIC_ICW1_INITIALIZE | PIC_ICW1_ICW4);
   i686_iowait();
   x86_outb(PIC2_COMMAND_PORT, PIC_ICW1_INITIALIZE | PIC_ICW1_ICW4);
@@ -52,10 +59,18 @@ void i686_PIC_Configure(uint8_t offsetPic1, uint8_t offsetPic2) {
   x86_outb(PIC2_DATA_PORT, PIC_ICW4_8086);
   i686_iowait();
 
-  x86_outb(PIC1_DATA_PORT, 0);
+
+  uint8_t icw4 = PIC_ICW4_8086;
+  if (autoEOI) {
+    icw4|=PIC_ICW4_AUTO_EOI;
+  }
+  x86_outb(PIC1_DATA_PORT, icw4);
   i686_iowait();
-  x86_outb(PIC2_DATA_PORT, 0);
+  x86_outb(PIC2_DATA_PORT, icw4);
   i686_iowait();
+
+
+  i686_PIC_SetMask(0xFFFF);
 }
 
 void i686_PIC_SendEOI(int irq){
@@ -67,37 +82,47 @@ void i686_PIC_SendEOI(int irq){
 
 
 void i686_PIC_Disable() {
-  x86_outb(PIC1_DATA_PORT, 0xFF);
+  i686_PIC_SetMask(0xFFFF);
+}
+
+void i686_PIC_SetMask(uint16_t mask) {
+  g_PicMask = mask;
+  x86_outb(PIC1_DATA_PORT, g_PicMask & 0xFF);
   i686_iowait();
-  x86_outb(PIC2_DATA_PORT, 0xFF);
+  x86_outb(PIC2_DATA_PORT, g_PicMask >> 8);
   i686_iowait();
 }
 
 void i686_PIC_Mask(int irq) {
   uint8_t port;
+  uint8_t mask;
 
-  if (irq < 8)
+  if (irq < 8) {
       port = PIC1_DATA_PORT;
-  else
+      mask = g_PicMask & 0xFF;
+  }
+  else {
       irq-=8;
       port = PIC2_DATA_PORT;
+      mask = g_PicMask >> 8;
+  }
 
-
-  uint8_t mask= x86_inb(port);
   x86_outb(port, mask | (1 << irq));
 }
 
 void i686_PIC_Unmask(int irq) {
   uint8_t port;
+  uint8_t mask;
 
-  if (irq < 8)
+  if (irq < 8) {
       port = PIC1_DATA_PORT;
-  else
+      mask = g_PicMask & 0xFF;
+  }
+  else {
       irq-=8;
       port = PIC2_DATA_PORT;
-
-
-  uint8_t mask= x86_inb(port);
+      mask = g_PicMask >> 8;
+  }
   x86_outb(port, mask & ~(1 << irq));
 }
 

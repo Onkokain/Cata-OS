@@ -2,8 +2,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
-
-void i686_PIC_Configure(uint8_t offsetPic1, uint8_t offsetPic2);
+#include <stdbool.h>
+void i686_PIC_Configure(uint8_t offsetPic1, uint8_t offsetPic2, bool autoEOI);
 
 void i686_PIC_SendEOI(int irq);
 void i686_PIC_Disable();
@@ -11,3 +11,4 @@ void i686_PIC_Unmask(int irq);
 void i686_PIC_Mask(int irq);
 uint16_t i686_PIC_ReadIRQRequestRegister();
 uint16_t i686_PIC_ReadInServiceRegister();
+void i686_PIC_SetMask(uint16_t mask);
