@@ -92,3 +92,10 @@ Cata-OS
     -> fat
 -> readme.md
 
+
+# How to Install
+-> clone the repo
+-> ensure that gcc, c, python, qemu are installed (will be bundled in a .iso file very soon)
+-> `make`
+-> `qemu-system-i386 -fda build/main_floppy.img`
+-> enjoy the os in all its glory
