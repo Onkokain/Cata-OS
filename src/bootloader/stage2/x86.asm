@@ -232,4 +232,23 @@ x86_Disk_Read:
   pop ebp
   ret
 
+global x86_Video_GetVbeInfo
+x86_Video_GetVbeInfo:
+  push ebp
+  mov ebp, esp
 
+  EnterRealMode
+
+  LinearToSegOff [bp+8],es,edi,di
+
+  mov eax, 0x4f00
+  int 10h
+
+  push eax
+
+  EnterProtectedMode
+  pop eax
+
+  mov esp, ebp
+  pop ebp
+  ret

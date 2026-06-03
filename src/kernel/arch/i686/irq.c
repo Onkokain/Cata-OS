@@ -50,7 +50,7 @@ void i686_IRQ_Init() {
   }
   x86_EnableInterrupts();
 
-  g_Driver->UnMask(0);
+  g_Driver->UnMask(0);  
   g_Driver->UnMask(1);
 }
 void i686_IRQ_RegisterHandler(int irq, IRQHandler handler) {
