@@ -275,11 +275,11 @@ x86_Video_GetModeInfo:
   push cx
 
   mov eax, 0x4f01
-  mov ecx, [bp+8]
+  mov cx, [bp+8]
   LinearToSegOff [bp+12],es,edi,di
   int 10h
 
-  pop ecx
+  pop cx
   pop ebp
   pop es
   pop edi
