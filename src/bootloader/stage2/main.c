@@ -51,12 +51,15 @@ void __attribute((cdecl)) start(uint16_t bootDrive) {
   if (VBE_GetControllerInfo(info)) {
     printf("Controller info received...\n");
     uint16_t* mode = (uint16_t*)(info->VideoModePtr);
+    printf("%x \n",mode);
     printf("this is properly executed");
     for (int i=0; mode[i]!=0xFFFF; i++) {
       if (!VBE_GetModeInfo(mode[i], modeInfo)) {
           printf("Can't get mode info %x :(\n", mode[i]);
-          continue;
+          goto jumpa;
+          // continue;
       }
+      jumpa:
       printf("anything below this (including this) is not being executed why??");
       bool hasFB = (modeInfo->attributes & 0x90) == 0x90;
 
