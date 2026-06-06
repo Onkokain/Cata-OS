@@ -239,15 +239,91 @@ x86_Video_GetVbeInfo:
 
   EnterRealMode
 
+  push edi
+  push es
+  push ebp
+
   LinearToSegOff [bp+8],es,edi,di
 
   mov eax, 0x4f00
   int 10h
 
+  pop ebp
+  pop es
+  pop edi
+
   push eax
 
   EnterProtectedMode
   pop eax
+
+  mov esp, ebp
+  pop ebp
+  ret
+
+
+global x86_Video_GetModeInfo
+x86_Video_GetModeInfo:
+  push ebp
+  mov ebp, esp
+
+  EnterRealMode
+
+  push edi
+  push es
+  push ebp
+  push cx
+
+  mov eax, 0x4f01
+  mov ecx, [bp+8]
+  LinearToSegOff [bp+12],es,edi,di
+  int 10h
+
+  pop ecx
+  pop ebp
+  pop es
+  pop edi
+
+  push eax
+
+  EnterProtectedMode
+  pop eax
+
+  mov esp, ebp
+  pop ebp
+  ret
+
+
+global x86_Video_SetModeInfo
+x86_Video_SetModeInfo:
+  push ebp
+  mov ebp, esp
+
+  EnterRealMode
+
+  push edi
+  push es
+  push ebp
+  push ebx
+
+  mov ax, 0
+  mov es, ax
+  mov edi, 0
+
+  mov ax, 0x4f02
+  mov bx, [bp+8]
+
+  int 10h
+
+  pop ebx
+  pop ebp
+  pop es
+  pop edi
+
+  push ax
+
+  EnterProtectedMode
+  pop ax
 
   mov esp, ebp
   pop ebp
