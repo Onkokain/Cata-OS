@@ -81,112 +81,112 @@ start:
 
   inc dh
   mov [bdb_heads],dh
-  ;
-  ; read FAT root directory
-  ;
-  mov ax, [bdb_sectors_per_fat]
-  mov bl, [bdb_fat_count]
-  xor bh,bh
-  mul bx
-  add ax, [bdb_reserved_sectors]
-  push ax
+;   ;
+;   ; read FAT root directory
+;   ;
+;   mov ax, [bdb_sectors_per_fat]
+;   mov bl, [bdb_fat_count]
+;   xor bh,bh
+;   mul bx
+;   add ax, [bdb_reserved_sectors]
+;   push ax
 
-  mov ax, [bdb_dir_entries_count]
-  shl ax,5
-  xor dx,dx
-  div word [bdb_bytes_per_sector]
+;   mov ax, [bdb_dir_entries_count]
+;   shl ax,5
+;   xor dx,dx
+;   div word [bdb_bytes_per_sector]
 
-  test dx,dx
-  jz .root_dir_after
-  inc ax
+;   test dx,dx
+;   jz .root_dir_after
+;   inc ax
 
-.root_dir_after:
-; read root directory
-  mov cl,al
-  pop ax
-  mov dl, [ebr_drive_number]
-  mov bx, buffer
-  call disk_read
+; .root_dir_after:
+; ; read root directory
+;   mov cl,al
+;   pop ax
+;   mov dl, [ebr_drive_number]
+;   mov bx, buffer
+;   call disk_read
 
-  ;search for kernel.bin
-  xor bx,bx
-  mov di, buffer
+;   ;search for kernel.bin
+;   xor bx,bx
+;   mov di, buffer
 
-.search_kernel:
-  mov si, file_stage2_bin
-  mov cx, 11
-  push di
-  repe cmpsb
-  pop di
-  je .found_kernel
+; .search_kernel:
+;   mov si, file_stage2_bin
+;   mov cx, 11
+;   push di
+;   repe cmpsb
+;   pop di
+;   je .found_kernel
 
-  add di,32
-  inc bx
-  cmp bx, [bdb_dir_entries_count]
-  jl .search_kernel
-  ;
-  ;error
-  ;
-  jmp kernel_not_found_error
+;   add di,32
+;   inc bx
+;   cmp bx, [bdb_dir_entries_count]
+;   jl .search_kernel
+;   ;
+;   ;error
+;   ;
+;   jmp kernel_not_found_error
 
 
-.found_kernel:
-  ; di -> address to entry
-  mov ax, [di+26]
-  mov [stage2_cluster], ax
+; .found_kernel:
+;   ; di -> address to entry
+;   mov ax, [di+26]
+;   mov [stage2_cluster], ax
 
-  mov ax, [bdb_reserved_sectors]
-  mov bx,buffer
-  mov cl, [bdb_sectors_per_fat]
-  mov dl, [ebr_drive_number]
-  call disk_read
-  ;
-  ; read kernel and process fat chain
-  ;
-  mov bx, STAGE2_LOAD_SEGMENT
-  mov es,bx
-  mov bx, STAGE2_LOAD_OFFSET
+;   mov ax, [bdb_reserved_sectors]
+;   mov bx,buffer
+;   mov cl, [bdb_sectors_per_fat]
+;   mov dl, [ebr_drive_number]
+;   call disk_read
+;   ;
+;   ; read kernel and process fat chain
+;   ;
+;   mov bx, STAGE2_LOAD_SEGMENT
+;   mov es,bx
+;   mov bx, STAGE2_LOAD_OFFSET
 
-  ;
-  ; loading kernel
-  ;
-.load_kernel_loop:
-  ; reading next cluster
-  mov ax, [stage2_cluster]
-  add ax,31
-  mov cl,1
-  mov dl, [ebr_drive_number]
+;   ;
+;   ; loading kernel
+;   ;
+; .load_kernel_loop:
+;   ; reading next cluster
+;   mov ax, [stage2_cluster]
+;   add ax,31
+;   mov cl,1
+;   mov dl, [ebr_drive_number]
 
-  call disk_read
+;   call disk_read
 
-  add bx,[bdb_bytes_per_sector]
+;   add bx,[bdb_bytes_per_sector]
 
-  mov ax,[stage2_cluster]
-  mov cx,3
-  mul cx
-  mov cx,2
-  div cx
+;   mov ax,[stage2_cluster]
+;   mov cx,3
+;   mul cx
+;   mov cx,2
+;   div cx
 
-  mov si, buffer
-  add si,ax
-  mov ax, [ds:si]
+;   mov si, buffer
+;   add si,ax
+;   mov ax, [ds:si]
 
-  or dx,dx
-  jz .even
+;   or dx,dx
+;   jz .even
 
-.odd:
-  shr ax,4
-  jmp .next_cluster_after
+; .odd:
+;   shr ax,4
+;   jmp .next_cluster_after
 
-.even:
-  and ax,0x0FFF
+; .even:
+;   and ax,0x0FFF
 
-.next_cluster_after:
-  cmp ax,0x0FF8
-  jae .read_finish
+; .next_cluster_after:
+;   cmp ax,0x0FF8
+;   jae .read_finish
 
-  mov [stage2_cluster], ax
-  jmp .load_kernel_loop
+;   mov [stage2_cluster], ax
+;   jmp .load_kernel_loop
 
 .read_finish:
   mov dl, [ebr_drive_number]
@@ -202,7 +202,7 @@ start:
 ; boot process fails
 ;
 boot_process_failed:
-  mov si,msg_boot_process_failed
+  mov si, msg_boot_process_failed
   call prints
   jmp wait_key_and_reboot
 
@@ -334,7 +334,11 @@ msg_loading: db "Loading...", ENDL,0 ; getting corrupted problem somewhere
 msg_boot_process_failed: db "Read disk fail", ENDL,0
 msg_stage2_not_found: db "stage2.bin not found!", ENDL, 0
 file_stage2_bin: db 'STAGE2  BIN'
-stage2_cluster:  dw 0
+; stage2_cluster:  dw 0
+
+stage2_location: dw 0
+
+
 
 ;
 ;

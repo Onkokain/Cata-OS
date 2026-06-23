@@ -12,6 +12,8 @@ uint8_t* Kernel = (uint8_t*)MEMORY_KERNEL_STACK_ADDR;
 
 typedef void (*KernelStart)();
 
+#define COLOR(r,g,b) ((b) | (g<< 8) | (r<<16) )
+
 void __attribute((cdecl)) start(uint16_t bootDrive) {
   clrscr();
   DISK disk;
@@ -30,13 +32,15 @@ void __attribute((cdecl)) start(uint16_t bootDrive) {
   uint8_t *kernelBuffer = Kernel;
   while ((read= FAT_Read(&disk, fd, MEMORY_KERNEL_SIZE, KernelLoadBuffer))) {
 
-    printf("Memcpy works.. while loop passed..\n");
 
     memcpy(kernelBuffer,KernelLoadBuffer, read );
     kernelBuffer+=read;
   }
-  printf("while loop exited..\n");
+
   FAT_Close(fd);
+  // goto kernel_exec;
+  // switches between bootloader graphic test and kernel
+
 
   const int desiredW = 1024;
   const int desiredH = 768;
@@ -60,7 +64,7 @@ void __attribute((cdecl)) start(uint16_t bootDrive) {
           // continue;
       }
       jumpa:
-      printf("anything below this (including this) is not being executed why??");
+      printf("found the bug in asm 'push ecx instead of cx'");
       bool hasFB = (modeInfo->attributes & 0x90) == 0x90;
 
       if (hasFB && modeInfo->width == desiredW && modeInfo->height == desiredH && modeInfo->bpp == desiredBpp) {
@@ -77,7 +81,7 @@ void __attribute((cdecl)) start(uint16_t bootDrive) {
       int h=modeInfo->height;
       for (int y=0; y<h; y++) {
         for (int x=0; x<w; x++) {
-          fb[y*modeInfo->pitch+x]=x+y;
+          fb[y*modeInfo->pitch/4+x]=COLOR(y,x,x+y/34);
         }
       }
     }
@@ -85,10 +89,11 @@ void __attribute((cdecl)) start(uint16_t bootDrive) {
   else {
     printf("No VBE extensions \n");
   }
-
+  goto end;
+  kernel_exec:
   // execute kernel
-  // KernelStart kernelStart= (KernelStart)Kernel;
-  // kernelStart();
+  KernelStart kernelStart= (KernelStart)Kernel;
+  kernelStart();
 end:
   while (1) {};
 }
